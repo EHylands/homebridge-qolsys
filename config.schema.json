@@ -20,7 +20,7 @@
         "title":"Port",
         "type": "integer",
         "required": true,
-        "default" : 7700
+        "default" : 12345
       },
       "SecureToken":{
         "title":"Secure Token",
