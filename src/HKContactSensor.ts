@@ -1,6 +1,6 @@
 import { Service, PlatformAccessory } from 'homebridge';
 import { HKSensor } from './HKSensor';
-import { QolsysController} from './QolsysController';
+import { } from './QolsysController';
 import { QolsysZoneStatus} from './QolsysZone';
 import { HKSensorType, HBQolsysPanel } from './platform';
 
