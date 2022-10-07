@@ -128,15 +128,15 @@ export class QolsysController extends TypedEmitter<QolsysControllerEvent> {
         this.Parse(data.toString());
       });
 
-
       // Initial connection to Panel
+      console.log('Connecting: ' + this.Host + ':' + this.Port);
       this.Socket.connect(this.Port, this.Host, () => {
         this.Refresh();
       });
     }
 
     private SendCommand(Command:string){
-      console.log(Command);
+      console.log('Sending: ' + Command);
       this.SecureSocket.write(Command);
     }
 
@@ -176,7 +176,7 @@ export class QolsysController extends TypedEmitter<QolsysControllerEvent> {
 
     private Parse(Message:string){
 
-      //console.log('Receive:' + Message);
+      console.log('Receive:' + Message);
 
       if(Message.length >= 3 && Message.substring(0.3) === 'ACK'){
         this.PartialMessage = '';
