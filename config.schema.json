@@ -1,0 +1,43 @@
+{
+  "pluginAlias": "QolsysPanel",
+  "pluginType": "platform",
+  "singular": true,
+  "schema": {
+    "type": "object",
+    "properties": {
+      "Name": {
+        "title": "Name",
+        "type": "string",
+        "required": true,
+        "default": "Qolsys Panel"
+      },
+      "Host":{
+        "title":"Host",
+        "type":"string",
+        "required": true
+      },
+      "Port":{
+        "title":"Port",
+        "type": "integer",
+        "required": true,
+        "default" : 7700
+      },
+      "SecureToken":{
+        "title":"Secure Token",
+        "type": "string",
+        "required": true,
+        "default": ""
+      },
+      "UserPinCode":{
+        "title":"User Pin Code",
+        "type": "string",
+        "required": true,
+        "default": ""
+      }
+    }
+  }  
+}
+
+
+
+           

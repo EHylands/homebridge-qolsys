@@ -1,0 +1,266 @@
+import { API, DynamicPlatformPlugin, Logger, PlatformAccessory, PlatformConfig, Service, Characteristic } from 'homebridge';
+import { PLATFORM_NAME, PLUGIN_NAME } from './settings';
+import { QolsysController, QolsysControllerError } from './QolsysController';
+import { QolsysZone, QolsysZoneStatus, QolsysZoneType} from './QolsysZone';
+import { QolsysAlarmMode} from './QolsysPartition';
+import { HKSecurityPanel } from './HKSecurityPanel';
+import { HKMotionSensor } from './HKMotionSensor';
+import { HKContactSensor } from './HKContactSensor';
+import { HKLeakSensor } from './HKLeakSensor';
+import { HKSmokeSensor } from './HKSmokeSensor';
+import { HKCOSensor } from './HKCOSensor';
+import { HKSensor } from './HKSensor';
+
+export enum HKSensorType {
+  MotionSensor = 'MotionSensor',
+  ContactSensor = 'ContactSensor',
+  LeakSensor = 'LeakSensor',
+  SmokeSensor = 'SmokeSensor',
+  COSensor = 'COSensor'
+}
+
+export class HBQolsysPanel implements DynamicPlatformPlugin {
+  public readonly Service: typeof Service = this.api.hap.Service;
+  public readonly Characteristic: typeof Characteristic = this.api.hap.Characteristic;
+
+  public accessories: PlatformAccessory[] = [];
+  public CreatedAccessories: PlatformAccessory[] = [];
+
+  private PanelHost = '';
+  private PanelPort = 14999;
+  private PanelSecureToken = '';
+  private UserPinCode = '';
+  public readonly Controller: QolsysController;
+
+  private Zones:Record<number, HKSensor> = {};
+  private InitialRun = true;
+  private ReceivingPanelNotification = false;
+
+  constructor(
+    public readonly log: Logger,
+    public readonly config: PlatformConfig,
+    public readonly api: API,
+  ) {
+
+    if(!this.CheckConfig()){
+      this.Controller = new QolsysController(this.PanelHost, this.PanelPort);
+      return;
+    }
+
+    this.Controller = new QolsysController(this.PanelHost, this.PanelPort);
+    this.Controller.SecureToken = this.PanelSecureToken;
+    this.Controller.UserPinCode = this.UserPinCode;
+
+    this.api.on('didFinishLaunching', () => {
+      this.discoverDevices();
+    });
+  }
+
+  configureAccessory(accessory: PlatformAccessory) {
+    this.accessories.push(accessory);
+  }
+
+  // First config check
+  // check if panel host, port and passcode are set
+  CheckConfig():boolean{
+    const Host = this.config.Host;
+    const Port = this.config.Port;
+    const SecureToken = this.config.SecureToken;
+    const UserPinCode = this.config.UserPinCode;
+
+    if(Host === undefined || Host === ''){
+      this.log.error('Aborting plugin operation - Invalid Host: ' + Host);
+      return false;
+    }
+
+    if(Port === undefined || isNaN(Port)){
+      this.log.error('Aborting plugin operation - Invalid Port: ' + Port);
+      return false;
+    }
+
+    if(SecureToken === undefined || SecureToken === ''){
+      this.log.error('Aborting plugin operation - Invalid SecureToken');
+      return false;
+    }
+
+    if(UserPinCode === undefined || UserPinCode === ''){
+      this.log.error('Aborting plugin operation - Invalid User Pin Code');
+      return false;
+    }
+
+    this.PanelHost = Host;
+    this.PanelPort = Port;
+    this.PanelSecureToken = SecureToken;
+    this.UserPinCode = UserPinCode;
+
+    return true;
+  }
+
+  private DeviceCacheCleanUp(){
+    // Do some cleanup of point that have been restored and are not in config file anymore
+    for(let i = 0; i< this.accessories.length;i++){
+      if(this.CreatedAccessories.indexOf(this.accessories[i]) === -1){
+        this.api.unregisterPlatformAccessories(PLUGIN_NAME, PLATFORM_NAME, [this.accessories[i]]);
+      }
+    }
+  }
+
+  private DiscoverPartitions(){
+    for(const PartitionId in this.Controller.GetPartitions()){
+      const Partition = this.Controller.GetPartitions()[PartitionId];
+      const uuid = this.api.hap.uuid.generate('QolsysPartition' + Partition.PartitionId);
+      const existingAccessory = this.accessories.find(accessory => accessory.UUID === uuid);
+
+      if (existingAccessory) {
+        new HKSecurityPanel(this, existingAccessory, Partition.PartitionId);
+        this.CreatedAccessories.push(existingAccessory);
+      } else{
+        const accessory = new this.api.platformAccessory(Partition.PartitionName, uuid);
+        new HKSecurityPanel(this, accessory, Partition.PartitionId);
+        this.CreatedAccessories.push(accessory);
+        this.api.registerPlatformAccessories(PLUGIN_NAME, PLATFORM_NAME, [accessory]);
+      }
+    }
+  }
+
+  private DiscoverZones(){
+    for(const ZoneId in this.Controller.GetZones()){
+      const Zone = this.Controller.GetZones()[ZoneId];
+      const uuid = this.api.hap.uuid.generate('QolsysZone' + Zone.ZoneType + Zone.ZoneId);
+      const existingAccessory = this.accessories.find(accessory => accessory.UUID === uuid);
+
+      if (existingAccessory) {
+        if(this.CreateSensor(existingAccessory, Zone)){
+          this.CreatedAccessories.push(existingAccessory);
+        }
+      } else{
+        const accessory = new this.api.platformAccessory(Zone.ZoneName, uuid);
+        if(this.CreateSensor(accessory, Zone)){
+          this.CreatedAccessories.push(accessory);
+          this.api.registerPlatformAccessories(PLUGIN_NAME, PLATFORM_NAME, [accessory]);
+        }
+      }
+    }
+  }
+
+  discoverDevices() {
+    this.Controller.on('PanelReadyForOperation', () => {
+
+      this.DumpPanelInfo();
+
+      if(this.InitialRun){
+        this.log.info('-----------------------------------------');
+        this.log.info('Configuring Homebridge plugin accessories');
+        this.log.info('-----------------------------------------');
+        this.DiscoverPartitions();
+        this.DiscoverZones();
+        this.DeviceCacheCleanUp();
+        this.InitialRun = false;
+      }
+
+      // Start panel event notifications.
+      this.log.info('-----------------------------------------');
+      this.log.info('Starting Controller Operation');
+      this.log.info('-----------------------------------------');
+      this.Controller.StartOperation();
+    });
+
+    this.Controller.on('ZoneStatusChange', (Zone) => {
+      const message = 'Zone' + Zone.ZoneId + '(' + Zone.ZoneName + '): ' + QolsysZoneStatus[Zone.ZoneStatus];
+      this.log.info(message);
+
+      const Sensor = this.Zones[Zone.ZoneId];
+      if(Sensor !== undefined){
+        Sensor.HandleEventDetected(Zone.ZoneStatus);
+      }
+    });
+
+    this.Controller.on('PartitionAlarmModeChange', (Partition)=>{
+      this.log.info('Partition'+ Partition.PartitionId + '(' + Partition.PartitionName +'): ' + QolsysAlarmMode[Partition.PartitionStatus]);
+    });
+
+
+    this.Controller.on('ControllerError', (Error, ErrorString) => {
+      this.log.error(Error + ' (' + ErrorString + ')');
+
+      // Reconnect if connection to panel has been lost
+      if(Error === QolsysControllerError.ConnectionError){
+
+        if(this.ReceivingPanelNotification === true){
+          this.ReceivingPanelNotification = false;
+          this.log.info('-----------------------------------------');
+          this.log.info('Stopping Control Panel Operation');
+          this.log.info('-----------------------------------------');
+        }
+
+        setTimeout(() => {
+          this.log.info('Trying to reconnect ....');
+          this.Controller.Connect();
+        }, 60000); // Try to reconnect every 60 sec
+
+      }
+    });
+
+    // Start panel initialisation
+    this.Controller.Connect();
+  }
+
+  private CreateSensor(Accessory: PlatformAccessory, Zone:QolsysZone):boolean{
+
+    switch(Zone.ZoneType){
+
+      case QolsysZoneType.Motion:{
+        this.Zones[Zone.ZoneId] = new HKMotionSensor(this, Accessory, Zone.ZoneId);
+        return true;
+      }
+
+      case QolsysZoneType.PanelMotion:{
+        this.Zones[Zone.ZoneId] = new HKMotionSensor(this, Accessory, Zone.ZoneId);
+        return true;
+      }
+
+      case QolsysZoneType.DoorWindow:{
+        this.Zones[Zone.ZoneId] = new HKContactSensor(this, Accessory, Zone.ZoneId);
+        return true;
+      }
+
+
+      case QolsysZoneType.Water :{
+        this.Zones[Zone.ZoneId] = new HKLeakSensor(this, Accessory, Zone.ZoneId);
+        return true;
+      }
+
+      case QolsysZoneType.SmokeDetector :{
+        this.Zones[Zone.ZoneId] = new HKSmokeSensor(this, Accessory, Zone.ZoneId);
+        return true;
+      }
+
+      case QolsysZoneType.CODetector :{
+        this.Zones[Zone.ZoneId] = new HKCOSensor(this, Accessory, Zone.ZoneId);
+        return true;
+      }
+
+      default:
+        this.log.info('Zone' + Zone.ZoneId + ': No HomeKit plugin available - ' + QolsysZoneType[Zone.ZoneType]);
+        return false;
+    }
+  }
+
+  private DumpPanelInfo(){
+    this.log.info('-----------------------------------------');
+    this.log.info('Qolsys Panel Information');
+    this.log.info('-----------------------------------------');
+
+    for (const PartitionId in this.Controller.GetPartitions()){
+      const Partition = this.Controller.GetPartitions()[PartitionId];
+      this.log.info('Partition' + Partition.PartitionId + ': ' + Partition.PartitionName);
+
+      for(const ZoneId in this.Controller.GetZones()){
+        const Zone = this.Controller.GetZones()[ZoneId];
+        if(Zone.PartitionId === Partition.PartitionId){
+          this.log.info('  Zone' + Zone.ZoneId + ': ' + Zone.ZoneName);
+        }
+      }
+    }
+  }
+}
