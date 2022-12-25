@@ -19,8 +19,8 @@ alpha stage, not ready for prime time !
 - Smoke Detector
 - CO Detector
 
-## Homebride pluging configuration
-### General parameters
+## Homebride Pluging Configuration
+### General Parameters
 * `Name` : Plugin name
 * `Host`:  Qolsys Panel IP address
 * `Port`:  Qolsys Panel Port number (defaults to 12345)
