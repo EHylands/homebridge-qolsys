@@ -7,16 +7,23 @@ alpha stage, not ready for prime time !
 ## Supported Qolsys Panels
 | Panel  | Status | Notes |
 | ------ | ------ |  ------ |
-| IQ Panel | Not supported|  |
-| IQ Panel 2 | Status pending | Software >= 2.4.0 |
-| IQ Panel 2 + | Status pending| For software  2.6.2: Enable 6-digit user codes |
-| IQ Panel 4 | Status pending | Software >= 4.1.0 |
+| IQ | Not supported|  |
+| IQ2 | Status pending | Software >= 2.4.0 |
+| IQ2+ | Status pending| For software  2.6.2: Enable 6-digit user codes |
+| IQ4 | Status pending | Software >= 4.1.0 |
+
+## Supported Sensors
+- Motion and PanelMotion
+- Door Window
+- Water
+- Smoke Detector
+- CO Detector
 
 ## Homebride pluging configuration
 ### General parameters
 * `Name` : Plugin name
 * `Host`:  Qolsys Panel IP address
-* `Port`:  Qolsys Panel Port number (defaults to 7700)
+* `Port`:  Qolsys Panel Port number (defaults to 12345)
 * `Secure Token`: Control 4 Integration Secure Token 
 * `User Pin Code`: User security code
 
@@ -33,7 +40,7 @@ Start by enabling Control 4 integration on Qolsys panel:
 - WIFI Devices
 - 3rd Party Connections
 - Check the box for Control4
-- Reboot Qolys Panel
+- Reboot Qolsys Panel
 
 Reveal Secure Access Token:
 - Settings
@@ -43,7 +50,7 @@ Reveal Secure Access Token:
 - Devices
 - WIFI Devices
 - 3rd Party Connections
-- Select Reveal Secure Toen filed
+- Select Reveal Secure Token field
 
 ### IQ Panel 4
 TBD
