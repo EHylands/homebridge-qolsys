@@ -4,12 +4,46 @@
 
 alpha stage, not ready for prime time !
 
-Homebridge for Qolsys IQ panels
-
 ## Supported Qolsys Panels
-| Panel  | Status | Note |
+| Panel  | Status | Notes |
 | ------ | ------ |  ------ |
 | IQ Panel | Not supported|  |
 | IQ Panel 2 | Status pending | Software >= 2.4.0 |
-| IQ Panel 2 + | Status pending| for software  2.6.2: Enable 6-digit user codes |
+| IQ Panel 2 + | Status pending| For software  2.6.2: Enable 6-digit user codes |
 | IQ Panel 4 | Status pending | Software >= 4.1.0 |
+
+## Homebride pluging configuration
+### General parameters
+* `Name` : Plugin name
+* `Host`:  Qolsys Panel IP address
+* `Port`:  Qolsys Panel Port number (defaults to 7700)
+* `Secure Token`: Control 4 Integration Secure Token 
+* `User Pin Code`: User security code
+
+## Qolsys Panel Configuration
+### IQ Panel 2
+TBD
+### IQ Panel 2 +
+Start by enabling Control 4 integration on Qolsys panel:
+- Settings
+- Advanced Settings 
+- Enter Dealer Code (defaults to 2222)
+- Installation
+- Devices
+- WIFI Devices
+- 3rd Party Connections
+- Check the box for Control4
+- Reboot Qolys Panel
+
+Reveal Secure Access Token:
+- Settings
+- Advanced Settings 
+- Enter Dealer Code (defaults to 2222)
+- Installation
+- Devices
+- WIFI Devices
+- 3rd Party Connections
+- Select Reveal Secure Toen filed
+
+### IQ Panel 4
+TBD
