@@ -7,10 +7,10 @@ alpha stage, not ready for prime time !
 ## Supported Qolsys Panels
 | Panel  | Status | Notes |
 | ------ | ------ |  ------ |
-| IQ | Not supported|  |
-| IQ2 | Status pending | Software >= 2.4.0 |
-| IQ2+ | Status pending| For software  2.6.2: Enable 6-digit user codes |
-| IQ4 | Status pending | Software >= 4.1.0 |
+| [IQ](https://qolsys.com/iq-panel/) | Not supported|  |
+| [IQ2](https://qolsys.com/iq-panel-2/) | Status pending | Software >= 2.4.0 |
+| [IQ2+](https://qolsys.com/iq-panel-2-plus/) | Status pending| For software  2.6.2: Enable 6-digit user codes |
+| [IQ4](https://qolsys.com/iq-panel-4/) | Status pending | Software >= 4.1.0 |
 
 ## Supported Sensors
 - Motion and PanelMotion
