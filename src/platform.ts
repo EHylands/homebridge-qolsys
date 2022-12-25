@@ -144,6 +144,7 @@ export class HBQolsysPanel implements DynamicPlatformPlugin {
   }
 
   discoverDevices() {
+
     this.Controller.on('PanelReadyForOperation', () => {
 
       this.DumpPanelInfo();

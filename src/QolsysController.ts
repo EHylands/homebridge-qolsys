@@ -76,7 +76,7 @@ export class QolsysController extends TypedEmitter<QolsysControllerEvent> {
 
     private PanelReadyForOperation = false;
     private PanelReceivingNotifcation = false;
-    private FirstRun = false;
+    private InitialRun = false;
     private LastRefreshDate = new Date();
 
     constructor(Host: string, Port:number) {
@@ -101,7 +101,6 @@ export class QolsysController extends TypedEmitter<QolsysControllerEvent> {
 
       this.PanelReadyForOperation = false;
       this.PanelReceivingNotifcation = false;
-      this.FirstRun = false;
       this.PartialMessage = '';
 
       this.Socket = new net.Socket();
@@ -142,7 +141,7 @@ export class QolsysController extends TypedEmitter<QolsysControllerEvent> {
 
     StartOperation(){
       this.PanelReceivingNotifcation = true;
-      this.FirstRun = true;
+      this.InitialRun = true;
       this.Refresh();
       this.CheckIsRefreshNeed();
     }
@@ -177,12 +176,14 @@ export class QolsysController extends TypedEmitter<QolsysControllerEvent> {
     private Parse(Message:string){
 
       console.log('Receive:' + Message);
+      Message = Message.replace(/[^\x20-\x7E]+/g, '');
 
       if(Message.length >= 3 && Message.substring(0.3) === 'ACK'){
         this.PartialMessage = '';
 
       } else{
         Message += this.PartialMessage;
+
 
         try{
           const Payload:PayloadJSON = JSON.parse(Message);
@@ -193,9 +194,7 @@ export class QolsysController extends TypedEmitter<QolsysControllerEvent> {
 
               switch(Payload.info_type){
                 case 'SUMMARY':
-                  //if(!this.PanelReadyForOperation){
                   this.ProcessSummary(Payload);
-                  //}
                   break;
 
                 default:
@@ -288,6 +287,7 @@ export class QolsysController extends TypedEmitter<QolsysControllerEvent> {
 
         }catch(error){
           this.PartialMessage = Message;
+          console.log('Invalid JSON');
         }
       }
     }
@@ -393,7 +393,8 @@ export class QolsysController extends TypedEmitter<QolsysControllerEvent> {
         Partition.PartitionName = Name;
         Partition.SecureArm = SecureArm;
 
-        if(Partition.SetAlarmModeFromString(Status)&& this.PanelReadyForOperation || this.FirstRun ){
+        if(Partition.SetAlarmModeFromString(Status) && this.PanelReadyForOperation || this.InitialRun){
+          console.log('Partition Emit');
           this.emit('PartitionAlarmModeChange', Partition);
         }
 
@@ -408,17 +409,19 @@ export class QolsysController extends TypedEmitter<QolsysControllerEvent> {
           Zone.ZoneName = PayloadZone.name;
           Zone.PartitionId = Number(PayloadZone.partition_id);
 
-          if(Zone.SetZoneStatusFromString(PayloadZone.status) && this.PanelReadyForOperation || this.FirstRun ){
+          if(Zone.SetZoneStatusFromString(PayloadZone.status) && this.PanelReadyForOperation || this.InitialRun){
+            console.log('Zone Emit');
             this.emit('ZoneStatusChange', Zone);
           }
         }
       }
 
       if(!this.PanelReadyForOperation){
+        console.log('Panel now ready for operation');
         this.PanelReadyForOperation = true;
         this.emit('PanelReadyForOperation', this.PanelReadyForOperation);
       }
 
-      this.FirstRun = false;
+      this.InitialRun = false;
     }
 }

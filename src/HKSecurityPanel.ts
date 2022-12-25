@@ -1,5 +1,4 @@
 import { Service, PlatformAccessory} from 'homebridge';
-import { QolsysController} from './QolsysController';
 import { QolsysAlarmMode} from './QolsysPartition';
 import { HBQolsysPanel } from './platform';
 
