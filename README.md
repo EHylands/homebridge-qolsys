@@ -8,9 +8,11 @@ alpha stage, not ready for prime time !
 | Panel  | Status | Notes |
 | ------ | ------ |  ------ |
 | [IQ](https://qolsys.com/iq-panel/) | Not supported|  |
+| [IQ HUB](https://qolsys.com/iq4-hub/) | Not supported |  |
 | [IQ2](https://qolsys.com/iq-panel-2/) | Status pending | Software >= 2.4.0 |
 | [IQ2+](https://qolsys.com/iq-panel-2-plus/) | Status pending| For software  2.6.2: Enable 6-digit user codes |
 | [IQ4](https://qolsys.com/iq-panel-4/) | Status pending | Software >= 4.1.0 |
+| [IQ4 HUB](https://qolsys.com/iq4-hub/) | Status pending |  |
 
 ## Supported Sensors
 - Motion and PanelMotion
