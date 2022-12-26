@@ -58,3 +58,5 @@ Reveal Secure Access Token:
 TBD
 
 ## Credits
+- [Home Assistant support thread](https://community.home-assistant.io/t/qolsys-iq-panel-2-and-3rd-party-integration/231405)
+- [@dcaton Hubitat-QolSysIQPanel](https://github.com/dcaton/Hubitat/tree/main/QolSysIQPanel)
