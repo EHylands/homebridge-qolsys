@@ -56,3 +56,5 @@ Reveal Secure Access Token:
 
 ### IQ Panel 4
 TBD
+
+## Credits

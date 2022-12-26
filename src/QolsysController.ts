@@ -132,6 +132,7 @@ export class QolsysController extends TypedEmitter<QolsysControllerEvent> {
       this.Socket.connect(this.Port, this.Host, () => {
         this.Refresh();
       });
+
     }
 
     private SendCommand(Command:string){
@@ -175,18 +176,22 @@ export class QolsysController extends TypedEmitter<QolsysControllerEvent> {
 
     private Parse(Message:string){
 
-      console.log('Receive:' + Message);
-      Message = Message.replace(/[^\x20-\x7E]+/g, '');
+      let FormattedMessage:string = Message.replace(/[^\x20-\x7E]+/g, '');
 
-      if(Message.length >= 3 && Message.substring(0.3) === 'ACK'){
+      if(FormattedMessage.length >= 3 && FormattedMessage.substring(0.3) === 'ACK'){
         this.PartialMessage = '';
+        console.log('Received:');
+        console.log(FormattedMessage);
 
       } else{
-        Message += this.PartialMessage;
-
+        FormattedMessage += this.PartialMessage;
+        FormattedMessage = Message.replace(/[^\x20-\x7E]+/g, '');
 
         try{
-          const Payload:PayloadJSON = JSON.parse(Message);
+          const Payload:PayloadJSON = JSON.parse(FormattedMessage);
+          console.log('JSON OK');
+          console.log('Received:');
+          console.log(FormattedMessage);
 
           switch(Payload.event){
 
@@ -286,8 +291,11 @@ export class QolsysController extends TypedEmitter<QolsysControllerEvent> {
           this.LastRefreshDate = new Date();
 
         }catch(error){
+          console.log('JSON ERROR OR PARTIAL MESSAGE');
+          console.log('Received:');
+          console.log(FormattedMessage);
           this.PartialMessage = Message;
-          console.log('Invalid JSON');
+
         }
       }
     }
