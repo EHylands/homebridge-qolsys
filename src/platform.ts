@@ -98,7 +98,7 @@ export class HBQolsysPanel implements DynamicPlatformPlugin {
 
   private DeviceCacheCleanUp(){
     // Do some cleanup of point that have been restored and are not in config file anymore
-    for(let i = 0; i< this.accessories.length;i++){
+    for(let i = 0; i < this.accessories.length;i++){
       if(this.CreatedAccessories.indexOf(this.accessories[i]) === -1){
         this.api.unregisterPlatformAccessories(PLUGIN_NAME, PLATFORM_NAME, [this.accessories[i]]);
       }
@@ -166,9 +166,17 @@ export class HBQolsysPanel implements DynamicPlatformPlugin {
       this.Controller.StartOperation();
     });
 
+    this.Controller.on('PrintDebugInfo', (DebugString) => {
+      this.log.debug(DebugString);
+    });
+
     this.Controller.on('ZoneStatusChange', (Zone) => {
-      const message = 'Zone' + Zone.ZoneId + '(' + Zone.ZoneName + '): ' + QolsysZoneStatus[Zone.ZoneStatus];
-      this.log.info(message);
+      const msg = 'Zone' + Zone.ZoneId + '(' + Zone.ZoneName + '): ' + QolsysZoneStatus[Zone.ZoneStatus];
+      if(this.config.LogZone){
+        this.log.info(msg);
+      } else{
+        this.log.debug(msg);
+      }
 
       const Sensor = this.Zones[Zone.ZoneId];
       if(Sensor !== undefined){
@@ -177,7 +185,12 @@ export class HBQolsysPanel implements DynamicPlatformPlugin {
     });
 
     this.Controller.on('PartitionAlarmModeChange', (Partition)=>{
-      this.log.info('Partition'+ Partition.PartitionId + '(' + Partition.PartitionName +'): ' + QolsysAlarmMode[Partition.PartitionStatus]);
+      const msg = 'Partition'+ Partition.PartitionId + '(' + Partition.PartitionName +'): ' + QolsysAlarmMode[Partition.PartitionStatus];
+      if(this.config.LogPartition){
+        this.log.info(msg);
+      } else{
+        this.log.debug(msg);
+      }
     });
 
 

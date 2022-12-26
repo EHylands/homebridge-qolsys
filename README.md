@@ -4,13 +4,15 @@
 
 alpha stage, not ready for prime time !
 
+![Screenshot](Qolsys.jpg)
+
 ## Supported Qolsys Panels
 | Panel  | Status | Notes |
 | ------ | ------ |  ------ |
 | [IQ](https://qolsys.com/iq-panel/) | Not supported|  |
 | [IQ HUB](https://qolsys.com/iq4-hub/) | Not supported |  |
 | [IQ2](https://qolsys.com/iq-panel-2/) | Status pending | Software >= 2.4.0 |
-| [IQ2+](https://qolsys.com/iq-panel-2-plus/) | Status pending| For software  2.6.2: Enable 6-digit user codes |
+| [IQ2+](https://qolsys.com/iq-panel-2-plus/) | Status pending| For software >= 2.6.2: Enable 6-digit user codes |
 | [IQ4](https://qolsys.com/iq-panel-4/) | Status pending | Software >= 4.1.0 |
 | [IQ4 HUB](https://qolsys.com/iq4-hub/) | Status pending |  |
 
@@ -59,4 +61,4 @@ TBD
 
 ## Credits
 - [Home Assistant support thread](https://community.home-assistant.io/t/qolsys-iq-panel-2-and-3rd-party-integration/231405)
-- [@dcaton Hubitat-QolSysIQPanel](https://github.com/dcaton/Hubitat/tree/main/QolSysIQPanel)
+- [Don Caton @dcaton Hubitat-QolSysIQPanel plugin](https://github.com/dcaton/Hubitat/tree/main/QolSysIQPanel)

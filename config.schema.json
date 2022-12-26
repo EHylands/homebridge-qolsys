@@ -33,6 +33,16 @@
         "type": "string",
         "required": true,
         "default": ""
+      },
+      "LogPartition":{
+        "type": "boolean",
+        "title": "Show Partition notifications in log file",
+        "default": true
+      },
+      "LogZone":{
+        "type": "boolean",
+        "title": "Show Zone notifications in log file",
+        "default": false
       }
     }
   }  

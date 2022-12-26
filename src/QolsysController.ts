@@ -1,3 +1,12 @@
+/*  Based on research and code from the following
+*  - HomeAssistant community
+*    https://community.home-assistant.io/t/qolsys-iq-panel-2-and-3rd-party-integration/231405
+*
+*  - Don Caton <dcaton1220@gmail.com> Hubitat-QolSysIQPanel plugin
+*    https://github.com/dcaton/Hubitat/tree/main/QolSysIQPanel
+*
+*/
+
 import { QolsysZone } from './QolsysZone';
 import { QolsysPartition, QolsysAlarmMode } from './QolsysPartition';
 import { TypedEmitter } from 'tiny-typed-emitter';
@@ -56,6 +65,7 @@ export interface QolsysControllerEvent {
   'ControllerError': (Error: QolsysControllerError, ErrorString: string) => void;
   'ZoneStatusChange': (Zone: QolsysZone) => void;
   'PartitionAlarmModeChange':(Partition: QolsysPartition) => void;
+  'PrintDebugInfo':(DebugString: string)=> void;
 }
 
 export class QolsysController extends TypedEmitter<QolsysControllerEvent> {
@@ -136,7 +146,7 @@ export class QolsysController extends TypedEmitter<QolsysControllerEvent> {
     }
 
     private SendCommand(Command:string){
-      console.log('Sending: ' + Command);
+      this.emit('PrintDebugInfo', 'Sending: ' + Command);
       this.SecureSocket.write(Command);
     }
 
@@ -180,18 +190,15 @@ export class QolsysController extends TypedEmitter<QolsysControllerEvent> {
 
       if(FormattedMessage.length >= 3 && FormattedMessage.substring(0.3) === 'ACK'){
         this.PartialMessage = '';
-        console.log('Received:');
-        console.log(FormattedMessage);
-
+        this.emit('PrintDebugInfo', 'Received: ' + FormattedMessage);
       } else{
         FormattedMessage += this.PartialMessage;
         FormattedMessage = Message.replace(/[^\x20-\x7E]+/g, '');
 
         try{
           const Payload:PayloadJSON = JSON.parse(FormattedMessage);
-          console.log('JSON OK');
-          console.log('Received:');
-          console.log(FormattedMessage);
+          this.emit('PrintDebugInfo', 'JSON OK');
+          this.emit('PrintDebugInfo', 'Received: ' + FormattedMessage);
 
           switch(Payload.event){
 
@@ -291,11 +298,9 @@ export class QolsysController extends TypedEmitter<QolsysControllerEvent> {
           this.LastRefreshDate = new Date();
 
         }catch(error){
-          console.log('JSON ERROR OR PARTIAL MESSAGE');
-          console.log('Received:');
-          console.log(FormattedMessage);
+          this.emit('PrintDebugInfo', 'JSON ERROR OR PARTIAL MESSAGE');
+          this.emit('PrintDebugInfo', 'Received: ' + FormattedMessage);
           this.PartialMessage = Message;
-
         }
       }
     }
