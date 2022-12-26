@@ -4,8 +4,6 @@
 
 alpha stage, not ready for prime time !
 
-![Screenshot](Qolsys.jpg)
-
 ## Supported Qolsys Panels
 | Panel  | Status | Notes |
 | ------ | ------ |  ------ |
