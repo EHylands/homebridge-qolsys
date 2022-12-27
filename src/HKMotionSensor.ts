@@ -28,7 +28,7 @@ export class HKMotionSensor extends HKSensor {
   }
 
   HandleEventDetected(ZoneStatus: QolsysZoneStatus){
-    const MotionDetected = ZoneStatus !== QolsysZoneStatus.OPEN;
+    const MotionDetected = (ZoneStatus === QolsysZoneStatus.OPEN);
     this.service.updateCharacteristic(this.platform.Characteristic.MotionDetected, MotionDetected );
   }
 }

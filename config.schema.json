@@ -34,18 +34,102 @@
         "required": true,
         "default": ""
       },
+      "ShowSecurityPanel":{
+        "type": "boolean",
+        "title": "Show Security Panels",
+        "default": true
+      },
+      "ShowMotion":{
+        "type": "boolean",
+        "title": "Show Motion Sensors",
+        "default": true
+      },
+      "ShowContact":{
+        "type": "boolean",
+        "title": "Show Contact Sensors",
+        "default": true
+      },
+      "ShowCO":{
+        "type": "boolean",
+        "title": "Show CO Sensors",
+        "default": true
+      },
+      "ShowSmoke":{
+        "type": "boolean",
+        "title": "Show Smoke Sensors",
+        "default": true
+      },
+      "ShowLeak":{
+        "type": "boolean",
+        "title": "Show Leak Sensors",
+        "default": true
+      },
+      "ShowBluetooth":{
+        "type": "boolean",
+        "title": "Show Bluetooth Sensors",
+        "default": false
+      },
       "LogPartition":{
         "type": "boolean",
-        "title": "Show Partition notifications in log file",
+        "title": "Show Partitios notifications in log file",
         "default": true
       },
       "LogZone":{
         "type": "boolean",
-        "title": "Show Zone notifications in log file",
+        "title": "Show Zones notifications in log file",
         "default": false
       }
     }
-  }  
+  },
+  "layout": [
+    {
+      "type": "fieldset",
+      "expandable": false,
+      "items":[ 
+        {
+          "type": "help",
+          "helpvalue": "<em class='primary-text'> Please read: </em> <a href='https://github.com/EHylands/homebridge-qolsys'> homebridge-qolsys</a>"
+        },{
+          "type": "flex",
+          "flex-flow": "row wrap",
+          "items": [
+            "Host",
+            "Port"
+          ]
+        },{
+          "type": "flex",
+          "flex-flow": "row wrap",
+          "items": [
+            "SecureToken",
+            "UserPinCode"
+          ]
+        },{
+          "title": "Accessories and Sensors",
+          "type": "fieldset",
+          "expandable": true,
+          "expanded": true,
+          "items": [
+            "ShowSecurityPanel",
+            "ShowMotion",
+            "ShowContact",
+            "ShowSmoke",
+            "ShowCO",
+            "ShowLeak",
+            "ShowBluetooth"
+          ]
+        },
+        {
+          "title": "Log File Options",
+          "type": "fieldset",
+          "expandable": true,
+          "expanded": true,
+          "items": [
+            "LogPartition",
+            "LogZone"
+          ]
+        }]
+    }
+  ]
 }
 
 

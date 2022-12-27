@@ -27,7 +27,7 @@ export class HKSmokeSensor extends HKSensor {
   }
 
   HandleEventDetected(ZoneStatus: QolsysZoneStatus){
-    const SmokeDetected = ZoneStatus !== QolsysZoneStatus.OPEN;
+    const SmokeDetected = ZoneStatus === QolsysZoneStatus.OPEN;
 
     if(SmokeDetected){
       this.service.updateCharacteristic(this.platform.Characteristic.SmokeDetected,

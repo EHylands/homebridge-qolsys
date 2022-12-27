@@ -75,7 +75,6 @@ export class QolsysController extends TypedEmitter<QolsysControllerEvent> {
     private Port: number;
     SecureToken = '';
     UserPinCode = '';
-    private SecureSocket:tls.TLSSocket;
     private Socket: net.Socket;
     private SocktetTimeout = 180000;
     private SocketKeepAliveTimeout = 15000;
@@ -94,7 +93,6 @@ export class QolsysController extends TypedEmitter<QolsysControllerEvent> {
       this.Host = Host;
       this.Port = Port;
       this.Socket = new net.Socket();
-      this.SecureSocket = new tls.TLSSocket(this.Socket, {rejectUnauthorized: false});
     }
 
     GetPartitions(){
@@ -113,9 +111,18 @@ export class QolsysController extends TypedEmitter<QolsysControllerEvent> {
       this.PanelReceivingNotifcation = false;
       this.PartialMessage = '';
 
-      this.Socket = new net.Socket();
+      // Initial connection to Panel
+      this.emit('PrintDebugInfo', 'Connecting: ' + this.Host + ':' + this.Port);
+
+      const options = {
+        rejectUnauthorized: false,
+      };
+
+      this.Socket = tls.connect(this.Port, this.Host, options, ()=>{
+        this.Refresh();
+      });
+
       this.Socket.setTimeout(this.SocktetTimeout);
-      this.SecureSocket = new tls.TLSSocket(this.Socket, {rejectUnauthorized: false});
 
       this.Socket.on('timeout', ()=>{
         this.PanelReadyForOperation = false;
@@ -133,21 +140,14 @@ export class QolsysController extends TypedEmitter<QolsysControllerEvent> {
         this.emit('ControllerError', QolsysControllerError.ConnectionError, error.message);
       });
 
-      this.SecureSocket.on('data', (data: Buffer) => {
+      this.Socket.on('data', (data: Buffer) => {
         this.Parse(data.toString());
       });
-
-      // Initial connection to Panel
-      console.log('Connecting: ' + this.Host + ':' + this.Port);
-      this.Socket.connect(this.Port, this.Host, () => {
-        this.Refresh();
-      });
-
     }
 
     private SendCommand(Command:string){
       this.emit('PrintDebugInfo', 'Sending: ' + Command);
-      this.SecureSocket.write(Command);
+      this.Socket.write(Command);
     }
 
     StartOperation(){
@@ -226,6 +226,10 @@ export class QolsysController extends TypedEmitter<QolsysControllerEvent> {
                   this.ProcessZoneActive(Payload);
                   break;
 
+                case 'ZONE_ADD':
+                  this.emit('PrintDebugInfo', 'Zone added to panel, please restart Homebridge to apply changes');
+                  break;
+
                 default:
                   this.emit('ControllerError', QolsysControllerError.InvalidZoneEventType, 'Received Invalid Zone Event Type:' + Message);
                   break;
@@ -285,6 +289,7 @@ export class QolsysController extends TypedEmitter<QolsysControllerEvent> {
             case 'ERROR':
               this.emit('ControllerError', QolsysControllerError.QolsysPanelError, 'Error received('
                + Payload.error_type +'):' + Payload.description);
+              this.Refresh();
 
               break;
 
@@ -346,6 +351,7 @@ export class QolsysController extends TypedEmitter<QolsysControllerEvent> {
       const Zone = this.Zones[Payload.zone.zone_id];
       if(Zone !== undefined){
         if(Zone.SetZoneStatusFromString(Payload.zone.status)){
+
           if(this.PanelReadyForOperation && this.PanelReceivingNotifcation){
             this.emit('ZoneStatusChange', Zone);
           }
@@ -407,7 +413,6 @@ export class QolsysController extends TypedEmitter<QolsysControllerEvent> {
         Partition.SecureArm = SecureArm;
 
         if(Partition.SetAlarmModeFromString(Status) && this.PanelReadyForOperation || this.InitialRun){
-          console.log('Partition Emit');
           this.emit('PartitionAlarmModeChange', Partition);
         }
 
@@ -423,14 +428,13 @@ export class QolsysController extends TypedEmitter<QolsysControllerEvent> {
           Zone.PartitionId = Number(PayloadZone.partition_id);
 
           if(Zone.SetZoneStatusFromString(PayloadZone.status) && this.PanelReadyForOperation || this.InitialRun){
-            console.log('Zone Emit');
             this.emit('ZoneStatusChange', Zone);
           }
         }
       }
 
       if(!this.PanelReadyForOperation){
-        console.log('Panel now ready for operation');
+        this.emit('PrintDebugInfo', 'Panel now ready for operation');
         this.PanelReadyForOperation = true;
         this.emit('PanelReadyForOperation', this.PanelReadyForOperation);
       }

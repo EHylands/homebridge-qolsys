@@ -28,7 +28,7 @@ export class HKCOSensor extends HKSensor {
 
   HandleEventDetected(ZoneStatus: QolsysZoneStatus){
 
-    const CODetected = ZoneStatus !== QolsysZoneStatus.OPEN;
+    const CODetected = ZoneStatus === QolsysZoneStatus.OPEN;
     this.service.updateCharacteristic(this.platform.Characteristic.CarbonMonoxideDetected, CODetected );
   }
 }
