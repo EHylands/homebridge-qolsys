@@ -2,7 +2,7 @@
 # Homebridge Plugin for Qolsys Panels
 [![npm downloads](https://badgen.net/npm/dt/homebridge-qolsys)](https://www.npmjs.com/package/homebridge-qolsys)
 
-alpha stage, not ready for prime time !
+beta stage, not ready for prime time yet !
 
 ## Supported Qolsys Panels
 | Panel  | Status | Notes |
@@ -21,6 +21,7 @@ alpha stage, not ready for prime time !
 - Smoke Detector
 - CO Detector
 - Bluetooth
+- Glass Break and Panel Glass Break
 
 ## Homebride Pluging Configuration
 ### General Parameters
