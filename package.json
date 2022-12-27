@@ -1,7 +1,7 @@
 {
   "displayName": "Homebridge Qolsys Panel",
   "name": "homebridge-qolsys",
-  "version": "0.0.7",
+  "version": "0.0.8",
   "description": "Homebridge plugin for Qolsys Panel.",
   "license": "MIT",
   "repository": {
