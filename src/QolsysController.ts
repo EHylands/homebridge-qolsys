@@ -192,7 +192,7 @@ export class QolsysController extends TypedEmitter<QolsysControllerEvent> {
         this.PartialMessage = '';
         this.emit('PrintDebugInfo', 'Received: ' + FormattedMessage);
       } else{
-        FormattedMessage += this.PartialMessage;
+        FormattedMessage = this.PartialMessage + FormattedMessage;
         FormattedMessage = FormattedMessage.replace(/[^\x20-\x7E]+/g, '');
 
         try{
