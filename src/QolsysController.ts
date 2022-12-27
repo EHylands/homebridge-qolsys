@@ -321,7 +321,7 @@ export class QolsysController extends TypedEmitter<QolsysControllerEvent> {
         user_code: this.UserPinCode,
         partition_id: PartitionId,
         arming_type: '',
-        delay: Delay.toString(),
+        delay: String(Delay),
         bypass: Bypass === true? 'true':'false',
       };
 
