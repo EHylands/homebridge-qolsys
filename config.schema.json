@@ -71,12 +71,12 @@
       },
       "LogPartition":{
         "type": "boolean",
-        "title": "Show Partitios notifications in log file",
+        "title": "Show Partitions notifications",
         "default": true
       },
       "LogZone":{
         "type": "boolean",
-        "title": "Show Zones notifications in log file",
+        "title": "Show Zones notifications",
         "default": false
       }
     }
