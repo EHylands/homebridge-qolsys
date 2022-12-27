@@ -193,7 +193,7 @@ export class QolsysController extends TypedEmitter<QolsysControllerEvent> {
         this.emit('PrintDebugInfo', 'Received: ' + FormattedMessage);
       } else{
         FormattedMessage += this.PartialMessage;
-        FormattedMessage = Message.replace(/[^\x20-\x7E]+/g, '');
+        FormattedMessage = FormattedMessage.replace(/[^\x20-\x7E]+/g, '');
 
         try{
           const Payload:PayloadJSON = JSON.parse(FormattedMessage);
