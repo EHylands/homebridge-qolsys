@@ -34,6 +34,18 @@
         "required": true,
         "default": ""
       },
+      "ForceArm":{
+        "title":"Partition Force Arm",
+        "type": "boolean",
+        "required": true,
+        "default": true
+      },
+      "ExitDelay":{
+        "title":"Arming Exit Delay",
+        "type": "integer",
+        "required": true,
+        "default": 60
+      },
       "ShowSecurityPanel":{
         "type": "boolean",
         "title": "Show Security Panels",
@@ -74,6 +86,11 @@
         "title": "Show Glass Break Sensors",
         "default": false
       },
+      "ShowTakeover":{
+        "type": "boolean",
+        "title": "Show Takeover Module Tamper Sensors",
+        "default": false
+      },
       "LogPartition":{
         "type": "boolean",
         "title": "Show Partitions notifications",
@@ -108,7 +125,18 @@
             "SecureToken",
             "UserPinCode"
           ]
-        },{
+        },
+        {
+          "title": "Panel Operation",
+          "type": "fieldset",
+          "expandable": true,
+          "expanded": true,
+          "items": [
+            "ExitDelay",
+            "ForceArm"
+          ]
+        },
+        {
           "title": "Accessories and Sensors",
           "type": "fieldset",
           "expandable": true,
@@ -121,7 +149,8 @@
             "ShowCO",
             "ShowLeak",
             "ShowBluetooth",
-            "ShowGlassBreak"
+            "ShowGlassBreak",
+            "ShowTakeover"
           ]
         },
         {

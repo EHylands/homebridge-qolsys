@@ -44,8 +44,11 @@ export class HBQolsysPanel implements DynamicPlatformPlugin {
   private ShowLeak = true;
   private ShowBluetooth = false;
   private ShowGlassBreak = false;
+  private ShowTakeover = false;
   private LogPartition = true;
   private LogZone = false;
+  ForceArm = true;
+  ExitDelay = 60;
 
   constructor(
     public readonly log: Logger,
@@ -131,12 +134,24 @@ export class HBQolsysPanel implements DynamicPlatformPlugin {
       this.ShowGlassBreak = this.config.ShowGlassBreak;
     }
 
+    if(this.config.ShowTakeover !== undefined){
+      this.ShowTakeover = this.config.ShowTakeover;
+    }
+
     if(this.config.LogPartition !== undefined){
       this.LogPartition = this.config.LogPartition;
     }
 
     if(this.config.LogZone !== undefined){
       this.LogZone = this.config.LogZone;
+    }
+
+    if(this.config.ForceArm !== undefined){
+      this.ForceArm = this.config.ForceArm;
+    }
+
+    if(this.config.ExitDelay !== undefined){
+      this.ExitDelay = this.config.ExitDelayt;
     }
 
     this.PanelHost = Host;
@@ -163,7 +178,7 @@ export class HBQolsysPanel implements DynamicPlatformPlugin {
       const uuid = this.api.hap.uuid.generate('QolsysPartition' + Partition.PartitionId);
       const existingAccessory = this.accessories.find(accessory => accessory.UUID === uuid);
 
-      if(!this.config.ShowSecurityPanel){
+      if(!this.ShowSecurityPanel){
         this.log.info('Partition' + Partition.PartitionId + ': Skipped in config file');
         continue;
       }
@@ -229,7 +244,7 @@ export class HBQolsysPanel implements DynamicPlatformPlugin {
 
     this.Controller.on('ZoneStatusChange', (Zone) => {
       const msg = 'Zone' + Zone.ZoneId + '(' + Zone.ZoneName + '): ' + QolsysZoneStatus[Zone.ZoneStatus];
-      if(this.config.LogZone){
+      if(this.LogZone){
         this.log.info(msg);
       } else{
         this.log.debug(msg);
@@ -243,7 +258,7 @@ export class HBQolsysPanel implements DynamicPlatformPlugin {
 
     this.Controller.on('PartitionAlarmModeChange', (Partition)=>{
       const msg = 'Partition'+ Partition.PartitionId + '(' + Partition.PartitionName +'): ' + QolsysAlarmMode[Partition.PartitionStatus];
-      if(this.config.LogPartition){
+      if(this.LogPartition){
         this.log.info(msg);
       } else{
         this.log.debug(msg);
@@ -268,7 +283,6 @@ export class HBQolsysPanel implements DynamicPlatformPlugin {
           this.log.info('Trying to reconnect ....');
           this.Controller.Connect();
         }, 60000); // Try to reconnect every 60 sec
-
       }
     });
 
@@ -281,7 +295,7 @@ export class HBQolsysPanel implements DynamicPlatformPlugin {
     switch(Zone.ZoneType){
 
       case QolsysZoneType.Motion:{
-        if(this.config.ShowMotion){
+        if(this.ShowMotion){
           this.Zones[Zone.ZoneId] = new HKMotionSensor(this, Accessory, Zone.ZoneId);
           return true;
         } else{
@@ -291,7 +305,7 @@ export class HBQolsysPanel implements DynamicPlatformPlugin {
       }
 
       case QolsysZoneType.PanelMotion:{
-        if(this.config.ShowMotion){
+        if(this.ShowMotion){
           this.Zones[Zone.ZoneId] = new HKMotionSensor(this, Accessory, Zone.ZoneId);
           return true;
         } else{
@@ -301,7 +315,7 @@ export class HBQolsysPanel implements DynamicPlatformPlugin {
       }
 
       case QolsysZoneType.DoorWindow:{
-        if(this.config.ShowContact){
+        if(this.ShowContact){
           this.Zones[Zone.ZoneId] = new HKContactSensor(this, Accessory, Zone.ZoneId);
           return true;
         } else{
@@ -311,7 +325,7 @@ export class HBQolsysPanel implements DynamicPlatformPlugin {
       }
 
       case QolsysZoneType.Water :{
-        if(this.config.ShowLeak){
+        if(this.ShowLeak){
           this.Zones[Zone.ZoneId] = new HKLeakSensor(this, Accessory, Zone.ZoneId);
           return true;
         } else{
@@ -321,7 +335,7 @@ export class HBQolsysPanel implements DynamicPlatformPlugin {
       }
 
       case QolsysZoneType.SmokeDetector :{
-        if(this.config.ShowSmoke){
+        if(this.ShowSmoke){
           this.Zones[Zone.ZoneId] = new HKSmokeSensor(this, Accessory, Zone.ZoneId);
           return true;
         } else{
@@ -331,7 +345,7 @@ export class HBQolsysPanel implements DynamicPlatformPlugin {
       }
 
       case QolsysZoneType.CODetector :{
-        if(this.config.ShowCO){
+        if(this.ShowCO){
           this.Zones[Zone.ZoneId] = new HKCOSensor(this, Accessory, Zone.ZoneId);
           return true;
         } else{
@@ -341,7 +355,7 @@ export class HBQolsysPanel implements DynamicPlatformPlugin {
       }
 
       case QolsysZoneType.Bluetooth :{
-        if(this.config.ShowBluetooth){
+        if(this.ShowBluetooth){
           this.Zones[Zone.ZoneId] = new HKContactSensor(this, Accessory, Zone.ZoneId);
           return true;
         } else{
@@ -351,7 +365,7 @@ export class HBQolsysPanel implements DynamicPlatformPlugin {
       }
 
       case QolsysZoneType.GlassBreak :{
-        if(this.config.ShowGlassBreak){
+        if(this.ShowGlassBreak){
           this.Zones[Zone.ZoneId] = new HKContactSensor(this, Accessory, Zone.ZoneId);
           return true;
         } else{
@@ -361,7 +375,17 @@ export class HBQolsysPanel implements DynamicPlatformPlugin {
       }
 
       case QolsysZoneType.PanelGlassBreak :{
-        if(this.config.ShowGlassBreak){
+        if(this.ShowGlassBreak){
+          this.Zones[Zone.ZoneId] = new HKContactSensor(this, Accessory, Zone.ZoneId);
+          return true;
+        } else{
+          this.log.info('Zone' + Zone.ZoneId + ': Skipped in config file - ' + QolsysZoneType[Zone.ZoneType]);
+          return false;
+        }
+      }
+
+      case QolsysZoneType.TakeoverModule :{
+        if(this.ShowTakeover){
           this.Zones[Zone.ZoneId] = new HKContactSensor(this, Accessory, Zone.ZoneId);
           return true;
         } else{

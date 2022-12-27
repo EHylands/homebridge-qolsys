@@ -48,23 +48,29 @@ export class HKSecurityPanel {
 
     switch(value){
       case this.platform.Characteristic.SecuritySystemTargetState.DISARM:{
-        this.platform.Controller.SendArmCommand(QolsysAlarmMode.DISARM, this.PartitionId);
+        this.platform.Controller.SendArmCommand(QolsysAlarmMode.DISARM, this.PartitionId, 0, true);
         break;
       }
 
       case this.platform.Characteristic.SecuritySystemTargetState.AWAY_ARM:{
-        this.platform.Controller.SendArmCommand(QolsysAlarmMode.ARM_AWAY, this.PartitionId);
+        const ExitDelay = this.platform.ExitDelay;
+        const Bypass = this.platform.ForceArm;
+        this.platform.Controller.SendArmCommand(QolsysAlarmMode.ARM_AWAY, this.PartitionId, ExitDelay, Bypass);
 
         break;
       }
 
       case this.platform.Characteristic.SecuritySystemTargetState.NIGHT_ARM:{
-        this.platform.Controller.SendArmCommand(QolsysAlarmMode.ARM_STAY, this.PartitionId);
+        const ExitDelay = this.platform.ExitDelay;
+        const Bypass = this.platform.ForceArm;
+        this.platform.Controller.SendArmCommand(QolsysAlarmMode.ARM_STAY, this.PartitionId, ExitDelay, Bypass);
         break;
       }
 
       case this.platform.Characteristic.SecuritySystemTargetState.STAY_ARM:{
-        this.platform.Controller.SendArmCommand(QolsysAlarmMode.ARM_STAY, this.PartitionId);
+        const ExitDelay = this.platform.ExitDelay;
+        const Bypass = this.platform.ForceArm;
+        this.platform.Controller.SendArmCommand(QolsysAlarmMode.ARM_STAY, this.PartitionId, ExitDelay, Bypass);
         break;
       }
     }

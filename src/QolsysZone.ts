@@ -76,6 +76,10 @@ export class QolsysZone{
         this.ZoneType = QolsysZoneType.SmokeDetector;
         break;
 
+      case 'Smoke_M':
+        this.ZoneType = QolsysZoneType.SmokeDetector;
+        break;
+
       case 'AuxiliaryPendant':
         this.ZoneType = QolsysZoneType.AuxiliaryPendant;
         break;

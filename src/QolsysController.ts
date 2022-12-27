@@ -288,8 +288,7 @@ export class QolsysController extends TypedEmitter<QolsysControllerEvent> {
               break;
 
             case 'ERROR':
-              this.emit('ControllerError', QolsysControllerError.QolsysPanelError, 'Error received('
-               + Payload.error_type +'):' + Payload.description);
+              this.emit('ControllerError', QolsysControllerError.QolsysPanelError, '(' + Payload.error_type +'):' + Payload.description);
               this.Refresh();
 
               break;
@@ -311,7 +310,7 @@ export class QolsysController extends TypedEmitter<QolsysControllerEvent> {
       }
     }
 
-    SendArmCommand(ArmingType:QolsysAlarmMode, PartitionId:number /*Delay:string, Bypass:string*/){
+    SendArmCommand(ArmingType:QolsysAlarmMode, PartitionId:number, Delay:number, Bypass:boolean){
 
       const ArmingJSON = {
         version: 1,
@@ -322,8 +321,8 @@ export class QolsysController extends TypedEmitter<QolsysControllerEvent> {
         user_code: this.UserPinCode,
         partition_id: PartitionId,
         arming_type: '',
-        //delay: Delay,
-        //bypass: Bypass,
+        delay: Delay.toString(),
+        bypass: Bypass === true? 'true':'false',
       };
 
       switch(ArmingType){
