@@ -48,23 +48,23 @@ export class HKSecurityPanel {
 
     switch(value){
       case this.platform.Characteristic.SecuritySystemTargetState.DISARM:{
-        this.platform.Controller.SendArmCommand(QolsysAlarmMode.DISARM, this.PartitionId, 0, false);
+        this.platform.Controller.SendArmCommand(QolsysAlarmMode.DISARM, this.PartitionId);
         break;
       }
 
       case this.platform.Characteristic.SecuritySystemTargetState.AWAY_ARM:{
-        this.platform.Controller.SendArmCommand(QolsysAlarmMode.ARM_AWAY, this.PartitionId, 60, false);
+        this.platform.Controller.SendArmCommand(QolsysAlarmMode.ARM_AWAY, this.PartitionId);
 
         break;
       }
 
       case this.platform.Characteristic.SecuritySystemTargetState.NIGHT_ARM:{
-        this.platform.Controller.SendArmCommand(QolsysAlarmMode.ARM_STAY, this.PartitionId, 0, false);
+        this.platform.Controller.SendArmCommand(QolsysAlarmMode.ARM_STAY, this.PartitionId);
         break;
       }
 
       case this.platform.Characteristic.SecuritySystemTargetState.STAY_ARM:{
-        this.platform.Controller.SendArmCommand(QolsysAlarmMode.ARM_STAY, this.PartitionId, 60, false);
+        this.platform.Controller.SendArmCommand(QolsysAlarmMode.ARM_STAY, this.PartitionId);
         break;
       }
     }

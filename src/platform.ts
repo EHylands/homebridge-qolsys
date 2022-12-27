@@ -36,6 +36,17 @@ export class HBQolsysPanel implements DynamicPlatformPlugin {
   private InitialRun = true;
   private ReceivingPanelNotification = false;
 
+  private ShowSecurityPanel = true;
+  private ShowMotion = true;
+  private ShowContact = true;
+  private ShowCO = true;
+  private ShowSmoke = true;
+  private ShowLeak = true;
+  private ShowBluetooth = false;
+  private ShowGlassBreak = false;
+  private LogPartition = true;
+  private LogZone = false;
+
   constructor(
     public readonly log: Logger,
     public readonly config: PlatformConfig,
@@ -88,6 +99,46 @@ export class HBQolsysPanel implements DynamicPlatformPlugin {
       return false;
     }
 
+    if(this.config.ShowSecurityPanel !== undefined){
+      this.ShowSecurityPanel = this.config.ShowSecurityPanel;
+    }
+
+    if(this.config.ShowMotion !== undefined){
+      this.ShowMotion = this.config.ShowMotion;
+    }
+
+    if(this.config.ShowContact !== undefined){
+      this.ShowContact = this.config.ShowContact;
+    }
+
+    if(this.config.ShowCO !== undefined){
+      this.ShowCO = this.config.ShowCO;
+    }
+
+    if(this.config.ShowSmoke !== undefined){
+      this.ShowSmoke = this.config.ShowSmoke;
+    }
+
+    if(this.config.ShowLeak !== undefined){
+      this.ShowLeak = this.config.ShowLeak;
+    }
+
+    if(this.config.ShowBluetooth !== undefined){
+      this.ShowBluetooth = this.config.ShowBluetooth;
+    }
+
+    if(this.config.ShowGlassBreak !== undefined){
+      this.ShowGlassBreak = this.config.ShowGlassBreak;
+    }
+
+    if(this.config.LogPartition !== undefined){
+      this.LogPartition = this.config.LogPartition;
+    }
+
+    if(this.config.LogZone !== undefined){
+      this.LogZone = this.config.LogZone;
+    }
+
     this.PanelHost = Host;
     this.PanelPort = Port;
     this.PanelSecureToken = SecureToken;
@@ -107,14 +158,15 @@ export class HBQolsysPanel implements DynamicPlatformPlugin {
 
   private DiscoverPartitions(){
 
-    if(!this.config.ShowSecurityPanel){
-      return;
-    }
-
     for(const PartitionId in this.Controller.GetPartitions()){
       const Partition = this.Controller.GetPartitions()[PartitionId];
       const uuid = this.api.hap.uuid.generate('QolsysPartition' + Partition.PartitionId);
       const existingAccessory = this.accessories.find(accessory => accessory.UUID === uuid);
+
+      if(!this.config.ShowSecurityPanel){
+        this.log.info('Partition' + Partition.PartitionId + ': Skipped in config file');
+        continue;
+      }
 
       if (existingAccessory) {
         new HKSecurityPanel(this, existingAccessory, Partition.PartitionId);
@@ -290,6 +342,26 @@ export class HBQolsysPanel implements DynamicPlatformPlugin {
 
       case QolsysZoneType.Bluetooth :{
         if(this.config.ShowBluetooth){
+          this.Zones[Zone.ZoneId] = new HKContactSensor(this, Accessory, Zone.ZoneId);
+          return true;
+        } else{
+          this.log.info('Zone' + Zone.ZoneId + ': Skipped in config file - ' + QolsysZoneType[Zone.ZoneType]);
+          return false;
+        }
+      }
+
+      case QolsysZoneType.GlassBreak :{
+        if(this.config.ShowGlassBreak){
+          this.Zones[Zone.ZoneId] = new HKContactSensor(this, Accessory, Zone.ZoneId);
+          return true;
+        } else{
+          this.log.info('Zone' + Zone.ZoneId + ': Skipped in config file - ' + QolsysZoneType[Zone.ZoneType]);
+          return false;
+        }
+      }
+
+      case QolsysZoneType.PanelGlassBreak :{
+        if(this.config.ShowGlassBreak){
           this.Zones[Zone.ZoneId] = new HKContactSensor(this, Accessory, Zone.ZoneId);
           return true;
         } else{

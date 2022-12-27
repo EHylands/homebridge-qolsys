@@ -16,6 +16,7 @@ export enum QolsysZoneType{
   AuxiliaryPendant,
   TakeoverModule,
   Bluetooth,
+  Keypad,
   Unknow
 }
 
@@ -89,6 +90,14 @@ export class QolsysZone{
 
       case 'Bluetooth':
         this.ZoneType = QolsysZoneType.Bluetooth;
+        break;
+
+      case 'Keypad':
+        this.ZoneType = QolsysZoneType.Keypad;
+        break;
+
+      case 'TakeoverModule':
+        this.ZoneType = QolsysZoneType.TakeoverModule;
         break;
 
       default:

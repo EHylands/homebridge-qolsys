@@ -69,6 +69,11 @@
         "title": "Show Bluetooth Sensors",
         "default": false
       },
+      "ShowGlassBreak":{
+        "type": "boolean",
+        "title": "Show Glass Break Sensors",
+        "default": false
+      },
       "LogPartition":{
         "type": "boolean",
         "title": "Show Partitions notifications",
@@ -115,7 +120,8 @@
             "ShowSmoke",
             "ShowCO",
             "ShowLeak",
-            "ShowBluetooth"
+            "ShowBluetooth",
+            "ShowGlassBreak"
           ]
         },
         {
