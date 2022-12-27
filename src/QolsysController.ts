@@ -211,7 +211,7 @@ export class QolsysController extends TypedEmitter<QolsysControllerEvent> {
 
                 default:
                   this.emit('ControllerError', QolsysControllerError.InvalidPayloadInfoType, 'Received Invalid Payload Info Type:'
-                  + Message);
+                  + FormattedMessage);
               }
               break;
 
@@ -231,7 +231,8 @@ export class QolsysController extends TypedEmitter<QolsysControllerEvent> {
                   break;
 
                 default:
-                  this.emit('ControllerError', QolsysControllerError.InvalidZoneEventType, 'Received Invalid Zone Event Type:' + Message);
+                  this.emit('ControllerError', QolsysControllerError.InvalidZoneEventType, 'Received Invalid Zone Event Type:'
+                   + FormattedMessage);
                   break;
               }
               break;
@@ -259,7 +260,7 @@ export class QolsysController extends TypedEmitter<QolsysControllerEvent> {
                   break;
 
                 default:
-                  this.emit('ControllerError', QolsysControllerError.InvalidArmingType, 'Received Invalid Arming Type:' + Message);
+                  this.emit('ControllerError', QolsysControllerError.InvalidArmingType, 'Received Invalid Arming Type:' + FormattedMessage);
                   break;
               }
               break;
@@ -280,7 +281,7 @@ export class QolsysController extends TypedEmitter<QolsysControllerEvent> {
                   break;
 
                 default:
-                  this.emit('ControllerError', QolsysControllerError.InvalidArmingType, 'Received Invalid Alarm Type:' + Message);
+                  this.emit('ControllerError', QolsysControllerError.InvalidArmingType, 'Received Invalid Alarm Type:' + FormattedMessage);
                   break;
               }
 
@@ -305,7 +306,7 @@ export class QolsysController extends TypedEmitter<QolsysControllerEvent> {
         }catch(error){
           this.emit('PrintDebugInfo', 'JSON ERROR OR PARTIAL MESSAGE');
           this.emit('PrintDebugInfo', 'Received: ' + FormattedMessage);
-          this.PartialMessage = Message;
+          this.PartialMessage = FormattedMessage;
         }
       }
     }
