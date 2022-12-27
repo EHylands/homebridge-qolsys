@@ -20,6 +20,7 @@ alpha stage, not ready for prime time !
 - Water
 - Smoke Detector
 - CO Detector
+- Bluetooth
 
 ## Homebride Pluging Configuration
 ### General Parameters
