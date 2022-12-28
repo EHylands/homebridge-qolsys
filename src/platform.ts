@@ -47,6 +47,7 @@ export class HBQolsysPanel implements DynamicPlatformPlugin {
   private ShowTakeover = false;
   private LogPartition = true;
   private LogZone = false;
+  private LogDebug = false;
   ForceArm = true;
   ExitDelay = 60;
 
@@ -146,12 +147,16 @@ export class HBQolsysPanel implements DynamicPlatformPlugin {
       this.LogZone = this.config.LogZone;
     }
 
+    if(this.config.LogDebug !== undefined){
+      this.LogDebug = this.config.LogDebug;
+    }
+
     if(this.config.ForceArm !== undefined){
       this.ForceArm = this.config.ForceArm;
     }
 
     if(this.config.ExitDelay !== undefined){
-      this.ExitDelay = this.config.ExitDelayt;
+      this.ExitDelay = this.config.ExitDelay;
     }
 
     this.PanelHost = Host;
@@ -239,7 +244,11 @@ export class HBQolsysPanel implements DynamicPlatformPlugin {
     });
 
     this.Controller.on('PrintDebugInfo', (DebugString) => {
-      this.log.debug(DebugString);
+      if(this.LogDebug){
+        this.log.info(DebugString);
+      } else{
+        this.log.debug(DebugString);
+      }
     });
 
     this.Controller.on('ZoneStatusChange', (Zone) => {

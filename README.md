@@ -22,6 +22,7 @@ beta stage, not ready for prime time yet !
 - CO Detector
 - Bluetooth
 - Glass Break and Panel Glass Break
+- Takeover Module
 
 ## Homebride Pluging Configuration
 ### General Parameters
@@ -30,6 +31,8 @@ beta stage, not ready for prime time yet !
 * `Port`:  Qolsys Panel Port number (defaults to 12345)
 * `Secure Token`: Control 4 Integration Secure Token 
 * `User Pin Code`: User security code
+* `Arming Exit Delay`: 
+* `Force Arm`: 'Bypass open or faulted sensors when arming partition'
 
 ## Qolsys Panel Configuration
 ### IQ Panel 2

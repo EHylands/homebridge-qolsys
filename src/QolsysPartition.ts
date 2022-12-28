@@ -57,6 +57,15 @@ export class QolsysPartition{
         case 'ARM_AWAY':
           return this.SetAlarmMode(QolsysAlarmMode.ARM_AWAY);
 
+        case 'ALARM_POLICE':
+          return this.SetAlarmMode(QolsysAlarmMode.ALARM_POLICE);
+
+        case 'ALARM_FIRE':
+          return this.SetAlarmMode(QolsysAlarmMode.ALARM_FIRE);
+
+        case 'ALARM_AUXILIARY':
+          return this.SetAlarmMode(QolsysAlarmMode.ALARM_AUXILIARY);
+
         default:
           return this.SetAlarmMode(QolsysAlarmMode.Unknow);
       }

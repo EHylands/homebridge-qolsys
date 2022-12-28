@@ -35,7 +35,7 @@
         "default": ""
       },
       "ForceArm":{
-        "title":"Partition Force Arm",
+        "title":"Force Arm",
         "type": "boolean",
         "required": true,
         "default": true
@@ -100,6 +100,11 @@
         "type": "boolean",
         "title": "Show Zones notifications",
         "default": false
+      },
+      "LogDebug":{
+        "type": "boolean",
+        "title": "Show plugin debug log without runnging homebridge in debug mode",
+        "default": false
       }
     }
   },
@@ -160,7 +165,8 @@
           "expanded": true,
           "items": [
             "LogPartition",
-            "LogZone"
+            "LogZone",
+            "LogDebug"
           ]
         }]
     }

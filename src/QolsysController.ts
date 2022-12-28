@@ -56,7 +56,8 @@ export enum QolsysControllerError{
   InvalidZoneEventType = 'Receive Invalid Zone Event Type',
   InvalidArmingType = 'Received Invalid Arming Type',
   InvalidAlarmType = 'Receive Invalid Alarm Type',
-  QolsysPanelError = 'Qolsys Panel Error'
+  QolsysPanelError = 'Qolsys Panel Error',
+  InvalidPartition = 'Received Invalid Partition Id'
 }
 
 export interface QolsysControllerEvent {
@@ -318,32 +319,73 @@ export class QolsysController extends TypedEmitter<QolsysControllerEvent> {
         action: 'ARMING',
         nonce: '',
         token: this.SecureToken,
-        user_code: this.UserPinCode,
         partition_id: PartitionId,
         arming_type: '',
-        delay: String(Delay),
+        delay: Delay,
         bypass: Bypass === true? 'true':'false',
       };
 
+      const SecureArmingJSON = {
+        version: 1,
+        source: 'C4',
+        action: 'ARMING',
+        nonce: '',
+        token: this.SecureToken,
+        user_code: this.UserPinCode,
+        partition_id: PartitionId,
+        arming_type: '',
+        delay: Delay,
+        bypass: Bypass === true? 'true':'false',
+      };
+
+      const DisarmJSON = {
+        version: 1,
+        source: 'C4',
+        action: 'ARMING',
+        nonce: '',
+        token: this.SecureToken,
+        user_code: this.UserPinCode,
+        partition_id: PartitionId,
+        arming_type: QolsysAlarmMode.DISARM,
+      };
+
+
+      const Partition = this.Partitions[PartitionId];
+      if(Partition === undefined){
+        this.emit('ControllerError', QolsysControllerError.InvalidPartition, 'SendArmingCommand: Invalid Partition');
+        return;
+      }
+
       switch(ArmingType){
         case QolsysAlarmMode.DISARM:
-          ArmingJSON.arming_type = QolsysAlarmMode[ArmingType];
+          DisarmJSON.arming_type = QolsysAlarmMode[ArmingType];
+          this.SendCommand(JSON.stringify(DisarmJSON));
           break;
 
         case QolsysAlarmMode.ARM_AWAY:
-          ArmingJSON.arming_type = QolsysAlarmMode[ArmingType];
+          if(Partition.SecureArm){
+            SecureArmingJSON.arming_type = QolsysAlarmMode[ArmingType];
+            this.SendCommand(JSON.stringify(SecureArmingJSON));
+          } else{
+            ArmingJSON.arming_type = QolsysAlarmMode[ArmingType];
+            this.SendCommand(JSON.stringify(ArmingJSON));
+          }
           break;
 
         case QolsysAlarmMode.ARM_STAY:
-          ArmingJSON.arming_type = QolsysAlarmMode[ArmingType];
+          if(Partition.SecureArm){
+            SecureArmingJSON.arming_type = QolsysAlarmMode[ArmingType];
+            this.SendCommand(JSON.stringify(SecureArmingJSON));
+          } else{
+            ArmingJSON.arming_type = QolsysAlarmMode[ArmingType];
+            this.SendCommand(JSON.stringify(ArmingJSON));
+          }
           break;
 
         default:
           this.emit('ControllerError', QolsysControllerError.InvalidArmingType,
             'Sending Invalid Arming Type:' + QolsysAlarmMode[ArmingType]);
       }
-
-      this.SendCommand(JSON.stringify(ArmingJSON));
     }
 
     private ProcessZoneUpdate(Payload:PayloadJSON){
