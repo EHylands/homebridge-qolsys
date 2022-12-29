@@ -46,8 +46,6 @@ export class HKSecurityPanel {
 
   handleSecuritySystemTargetStateSet(value) {
 
-    console.log('setting' + value);
-
     switch(value){
       case this.platform.Characteristic.SecuritySystemTargetState.DISARM:{
         this.platform.Controller.SendArmCommand(QolsysAlarmMode.DISARM, this.PartitionId, 0, true);
