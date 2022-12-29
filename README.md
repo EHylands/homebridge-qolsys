@@ -32,7 +32,7 @@ beta stage, not ready for prime time yet !
 * `Secure Token`: Control 4 Integration Secure Token 
 * `User Pin Code`: User security code
 * `Arming Exit Delay`: 
-* `Force Arm`: 'Bypass open or faulted sensors when arming partition'
+* `Force Arm`: Bypass open or faulted sensors when arming partition
 
 ## Qolsys Panel Configuration
 ### IQ Panel 2
