@@ -331,7 +331,7 @@ export class QolsysController extends TypedEmitter<QolsysControllerEvent> {
         action: 'ARMING',
         nonce: '',
         token: this.SecureToken,
-        user_code: this.UserPinCode,
+        usercode: this.UserPinCode,
         partition_id: PartitionId,
         arming_type: '',
         delay: Delay,
@@ -344,7 +344,7 @@ export class QolsysController extends TypedEmitter<QolsysControllerEvent> {
         action: 'ARMING',
         nonce: '',
         token: this.SecureToken,
-        user_code: this.UserPinCode,
+        usercode: this.UserPinCode,
         partition_id: PartitionId,
         arming_type: QolsysAlarmMode.DISARM,
       };
