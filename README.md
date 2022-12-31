@@ -56,11 +56,11 @@
 
 ## Plugin Operation
 ### HomeKit Security System Accessory:
-| Homekit Area Arming State | Qolsys Partition State|
+| Homekit Partition State | Qolsys Partition State|
 | ------ | ------ | 
 | Off | Disarmed
 | Away | Arm Away, Exit Delay in config file
-| Night | Arm Stay, instant arm
+| Night | Arm Stay, Instant Arm
 | Home | Arm Stay, Exit Delay in config file
 
 ## Credits

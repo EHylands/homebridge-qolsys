@@ -198,7 +198,6 @@ export class QolsysController extends TypedEmitter<QolsysControllerEvent> {
 
         try{
           const Payload:PayloadJSON = JSON.parse(FormattedMessage);
-          this.emit('PrintDebugInfo', 'JSON OK');
           this.emit('PrintDebugInfo', 'Received: ' + FormattedMessage);
 
           switch(Payload.event){
@@ -475,7 +474,6 @@ export class QolsysController extends TypedEmitter<QolsysControllerEvent> {
       }
 
       if(!this.PanelReadyForOperation){
-        this.emit('PrintDebugInfo', 'Panel now ready for operation');
         this.PanelReadyForOperation = true;
         this.emit('PanelReadyForOperation', this.PanelReadyForOperation);
       }

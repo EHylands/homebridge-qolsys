@@ -103,7 +103,7 @@
       },
       "LogDebug":{
         "type": "boolean",
-        "title": "Show plugin debug log without runnging homebridge in debug mode",
+        "title": "Show Qolsys panel debug information",
         "default": false
       }
     }
