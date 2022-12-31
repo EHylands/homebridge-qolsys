@@ -2,8 +2,6 @@
 # Homebridge Plugin for Qolsys Panels
 [![npm downloads](https://badgen.net/npm/dt/homebridge-qolsys)](https://www.npmjs.com/package/homebridge-qolsys)
 
-beta stage, not ready for prime time yet !
-
 ## Supported Qolsys Panels
 | Panel  | Status | Notes |
 | ------ | ------ |  ------ |
@@ -34,7 +32,7 @@ beta stage, not ready for prime time yet !
 * `Force Arm`: Bypass open or faulted sensors when arming partition
 
 ## Qolsys Panel Configuration
-### IQ Panel2, IQ Panel 2 + and  IQ Panel 4
+### IQ2, IQ2+ and IQ4
 1. Start by enabling Control 4 integration on Qolsys panel:
 - Settings
 - Advanced Settings 
@@ -55,6 +53,15 @@ beta stage, not ready for prime time yet !
 - WIFI Devices
 - 3rd Party Connections
 - Select Reveal Secure Token field
+
+## Plugin Operation
+### HomeKit Security System Accessory:
+| Homekit Area Arming State | Qolsys Partition State|
+| ------ | ------ | 
+| Off | Disarmed
+| Away | Arm Away, Exit Delay in config file
+| Night | Arm Stay, instant arm
+| Home | Arm Stay, Exit Delay in config file
 
 ## Credits
 - @andrewfblack, @CodyRWhite, @ifeign and @siglumous for beta testing initial plugin versions!
