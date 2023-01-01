@@ -9,9 +9,9 @@ This plugin only supports the IQ Panel basic security features:
  | Arming partition (Arm-Away, Arm-Stay | Supported |
  | Disarming partition | Supported |
  | RF and wired sensor status | Supported |
- | Z-Wave accessory status and control | $${\color{red}Not Supported}$$  |
- | IQ Panel smart home features |  $${\color{red}Not Supported}$$ |
- | Other Alarm.com features |  $${\color{red}Not Supported}$$ |
+ | Z-Wave accessory status and control | $${\color{red}Not \space Supported}$$  |
+ | IQ Panel smart home features |  $${\color{red}Not \space Supported}$$ |
+ | Other Alarm.com features |  $${\color{red}Not \space  Supported}$$ |
  
 ## Supported Qolsys Panels
 | Panel  | Status | Notes |
