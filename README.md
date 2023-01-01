@@ -9,19 +9,19 @@ This plugin only supports the IQ Panel basic security features:
  | Arming partition (Arm-Away, Arm-Stay | Supported |
  | Disarming partition | Supported |
  | RF and wired sensor status | Supported |
- | Z-Wave accessory status and control | $${\color{red}Not \space Supported}$$  |
- | IQ Panel smart home features |  $${\color{red}Not \space Supported}$$ |
- | Other Alarm.com features |  $${\color{red}Not \space  Supported}$$ |
+ | Z-Wave accessory status and control | Not Supported  |
+ | IQ Panel smart home features |  Not Supported |
+ | Other Alarm.com features |  Not Supported |
  
 ## Supported Qolsys Panels
 | Panel  | Status | Notes |
 | ------ | ------ |  ------ |
-| [IQ](https://qolsys.com/iq-panel/) | $${\color{red}Not \space Supported}$$|  |
-| [IQ HUB](https://qolsys.com/iq4-hub/) |$${\color{red}Not \space Supported}$$ |  |
+| [IQ](https://qolsys.com/iq-panel/) | Not Supported|  |
+| [IQ HUB](https://qolsys.com/iq4-hub/) |Not Supported |  |
 | [IQ2](https://qolsys.com/iq-panel-2/) | Supported | Software >= 2.4.0 |
 | [IQ2+](https://qolsys.com/iq-panel-2-plus/) | Supported| For software >= 2.6.2: Enable 6-digit user codes |
-| [IQ4](https://qolsys.com/iq-panel-4/) |$${\color{orange}Status \space Pending}$$ | Software >= 4.1.0 |
-| [IQ4 HUB](https://qolsys.com/iq4-hub/) | $${\color{orange}Status \space Pending}$$ |  |
+| [IQ4](https://qolsys.com/iq-panel-4/) |Status Pending | Software >= 4.1.0 |
+| [IQ4 HUB](https://qolsys.com/iq4-hub/) | Status Pending |  |
 
 ## Supported Sensors
 - Motion and Panel Motion
