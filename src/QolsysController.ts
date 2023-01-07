@@ -173,7 +173,6 @@ export class QolsysController extends TypedEmitter<QolsysControllerEvent> {
     }
 
     private Refresh(){
-      console.log('refresh');
       const CommandJSON = {
         nonce: '',
         action: 'INFO',
@@ -462,7 +461,6 @@ export class QolsysController extends TypedEmitter<QolsysControllerEvent> {
 
 
         if(Partition.SetAlarmModeFromString(Status) && this.PanelReadyForOperation || this.InitialRun){
-          console.log(Partition);
           this.emit('PartitionAlarmModeChange', Partition);
         }
 
