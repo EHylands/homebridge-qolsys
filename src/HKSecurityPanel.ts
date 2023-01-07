@@ -22,6 +22,25 @@ export class HKSecurityPanel {
     this.service = this.accessory.getService(this.platform.Service.SecuritySystem)
     || this.accessory.addService(this.platform.Service.SecuritySystem);
 
+    const ValidCurrentStates = [
+      this.platform.api.hap.Characteristic.SecuritySystemCurrentState.STAY_ARM,
+      this.platform.api.hap.Characteristic.SecuritySystemCurrentState.AWAY_ARM,
+      this.platform.api.hap.Characteristic.SecuritySystemCurrentState.DISARMED,
+      this.platform.api.hap.Characteristic.SecuritySystemCurrentState.ALARM_TRIGGERED,
+    ];
+
+    const ValidTargetStates = [
+      this.platform.api.hap.Characteristic.SecuritySystemTargetState.STAY_ARM,
+      this.platform.api.hap.Characteristic.SecuritySystemTargetState.AWAY_ARM,
+      this.platform.api.hap.Characteristic.SecuritySystemTargetState.DISARM,
+    ];
+
+    this.service.getCharacteristic(this.platform.api.hap.Characteristic.SecuritySystemCurrentState)
+      .setProps({ validValues: ValidCurrentStates});
+
+    this.service.getCharacteristic(this.platform.api.hap.Characteristic.SecuritySystemTargetState)
+      .setProps({ validValues: ValidTargetStates });
+
     this.service.getCharacteristic(this.platform.Characteristic.SecuritySystemTargetState)
       .onSet(this.handleSecuritySystemTargetStateSet.bind(this));
 
@@ -53,9 +72,9 @@ export class HKSecurityPanel {
       }
 
       case this.platform.Characteristic.SecuritySystemTargetState.AWAY_ARM:{
-        const ExitDelay = this.platform.ExitDelay;
+        const AwayExitDelay = this.platform.AwayExitDelay;
         const Bypass = this.platform.ForceArm;
-        this.platform.Controller.SendArmCommand(QolsysAlarmMode.ARM_AWAY, this.PartitionId, ExitDelay, Bypass);
+        this.platform.Controller.SendArmCommand(QolsysAlarmMode.ARM_AWAY, this.PartitionId, AwayExitDelay, Bypass);
         break;
       }
 
@@ -66,9 +85,9 @@ export class HKSecurityPanel {
       }
 
       case this.platform.Characteristic.SecuritySystemTargetState.STAY_ARM:{
-        const ExitDelay = this.platform.ExitDelay;
+        const HomeExitDelay = this.platform.HomeExitDelay;
         const Bypass = this.platform.ForceArm;
-        this.platform.Controller.SendArmCommand(QolsysAlarmMode.ARM_STAY, this.PartitionId, ExitDelay, Bypass);
+        this.platform.Controller.SendArmCommand(QolsysAlarmMode.ARM_STAY, this.PartitionId, HomeExitDelay, Bypass);
         break;
       }
     }
@@ -77,10 +96,16 @@ export class HKSecurityPanel {
   private QolsysPartitionStatusToCurrentHKStatus(Status: QolsysAlarmMode){
     switch(Status){
       case QolsysAlarmMode.EXIT_DELAY:
-        return this.platform.Characteristic.SecuritySystemCurrentState.AWAY_ARM;
+        return this.platform.Characteristic.SecuritySystemCurrentState.DISARMED;
 
       case QolsysAlarmMode.ENTRY_DELAY:
         return this.platform.Characteristic.SecuritySystemCurrentState.AWAY_ARM;
+
+      case QolsysAlarmMode.ARM_STAY_EXIT_DELAY:
+        return this.platform.Characteristic.SecuritySystemCurrentState.DISARMED;
+
+      case QolsysAlarmMode.ARM_AWAY_EXIT_DELAY:
+        return this.platform.Characteristic.SecuritySystemCurrentState.DISARMED;
 
       case QolsysAlarmMode.ARM_AWAY:
         return this.platform.Characteristic.SecuritySystemCurrentState.AWAY_ARM;
@@ -111,6 +136,12 @@ export class HKSecurityPanel {
         return this.platform.Characteristic.SecuritySystemTargetState.AWAY_ARM;
 
       case QolsysAlarmMode.ENTRY_DELAY:
+        return this.platform.Characteristic.SecuritySystemTargetState.DISARM;
+
+      case QolsysAlarmMode.ARM_STAY_EXIT_DELAY:
+        return this.platform.Characteristic.SecuritySystemTargetState.STAY_ARM;
+
+      case QolsysAlarmMode.ARM_AWAY_EXIT_DELAY:
         return this.platform.Characteristic.SecuritySystemTargetState.AWAY_ARM;
 
       case QolsysAlarmMode.ARM_AWAY:
