@@ -173,6 +173,7 @@ export class QolsysController extends TypedEmitter<QolsysControllerEvent> {
     }
 
     private Refresh(){
+      console.log('refresh');
       const CommandJSON = {
         nonce: '',
         action: 'INFO',
@@ -189,7 +190,7 @@ export class QolsysController extends TypedEmitter<QolsysControllerEvent> {
 
       let FormattedMessage:string = Message.replace(/[^\x20-\x7E]+/g, '');
 
-      if(FormattedMessage.length >= 3 && FormattedMessage.substring(0.3) === 'ACK'){
+      if(FormattedMessage === 'ACK'){
         this.PartialMessage = '';
         this.emit('PrintDebugInfo', 'Received: ' + FormattedMessage);
       } else{
@@ -426,6 +427,13 @@ export class QolsysController extends TypedEmitter<QolsysControllerEvent> {
       const Partition = this.Partitions[PartitionId];
       if(Partition!== undefined){
         if(Partition.SetAlarmMode(AlarmMode)){
+
+          // If Exit_Delay, need to run a new refresh to access ARM-AWAY-EXIT-DELAY vs ARM-STAY-EXIT-DELAY
+          if(Partition.PartitionStatus === QolsysAlarmMode.EXIT_DELAY){
+            this.Refresh();
+            return;
+          }
+
           if(this.PanelReadyForOperation && this.PanelReceivingNotifcation){
             this.emit('PartitionAlarmModeChange', Partition);
           }
@@ -452,7 +460,9 @@ export class QolsysController extends TypedEmitter<QolsysControllerEvent> {
         Partition.PartitionName = Name;
         Partition.SecureArm = SecureArm;
 
+
         if(Partition.SetAlarmModeFromString(Status) && this.PanelReadyForOperation || this.InitialRun){
+          console.log(Partition);
           this.emit('PartitionAlarmModeChange', Partition);
         }
 

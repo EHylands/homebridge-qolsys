@@ -49,7 +49,8 @@ export class HBQolsysPanel implements DynamicPlatformPlugin {
   private LogZone = false;
   private LogDebug = false;
   ForceArm = true;
-  ExitDelay = 60;
+  AwayExitDelay = 120;
+  HomeExitDelay = 120;
 
   constructor(
     public readonly log: Logger,
@@ -155,8 +156,12 @@ export class HBQolsysPanel implements DynamicPlatformPlugin {
       this.ForceArm = this.config.ForceArm;
     }
 
-    if(this.config.ExitDelay !== undefined){
-      this.ExitDelay = this.config.ExitDelay;
+    if(this.config.AwayExitDelay !== undefined){
+      this.AwayExitDelay = this.config.AwayExitDelay;
+    }
+
+    if(this.config.HomeExitDelay !== undefined){
+      this.HomeExitDelay = this.config.HomeExitDelay;
     }
 
     this.PanelHost = Host;
