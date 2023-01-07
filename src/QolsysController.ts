@@ -78,7 +78,7 @@ export class QolsysController extends TypedEmitter<QolsysControllerEvent> {
     UserPinCode = '';
     private Socket: net.Socket;
     private SocktetTimeout = 180000;
-    private SocketKeepAliveTimeout = 15000;
+    private SocketKeepAliveTimeout = 30000;
     private PartialMessage = '';
 
     private Partitions:Record<number, QolsysPartition> = {};
@@ -473,11 +473,13 @@ export class QolsysController extends TypedEmitter<QolsysControllerEvent> {
         }
       }
 
+      this.InitialRun = false;
+
       if(!this.PanelReadyForOperation){
         this.PanelReadyForOperation = true;
         this.emit('PanelReadyForOperation', this.PanelReadyForOperation);
       }
 
-      this.InitialRun = false;
+
     }
 }
