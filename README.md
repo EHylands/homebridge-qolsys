@@ -72,7 +72,6 @@ This plugin only supports the IQ Panel basic security features:
 | ------ | ------ | 
 | Off | Disarmed
 | Away | Arm Away, Exit Delay in config file
-| Night | Arm Stay, Instant Arm
 | Home | Arm Stay, Exit Delay in config file
 
 ## Credits

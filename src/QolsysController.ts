@@ -433,6 +433,11 @@ export class QolsysController extends TypedEmitter<QolsysControllerEvent> {
             return;
           }
 
+          if(Partition.PartitionStatus === QolsysAlarmMode.ENTRY_DELAY){
+            this.Refresh();
+            return;
+          }
+
           if(this.PanelReadyForOperation && this.PanelReceivingNotifcation){
             this.emit('PartitionAlarmModeChange', Partition);
           }
