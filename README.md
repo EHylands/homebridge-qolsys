@@ -39,8 +39,8 @@ This plugin only supports the IQ Panel basic security features:
 * `Port`:  Qolsys Panel Port number (defaults to 12345)
 * `Secure Token`: C4 Integration Secure Token 
 * `User Pin Code`: User security code
-* `Arm Away Exit Delay`: How much time users have to exit the location before the panel arms itself to Arm Away (0 sec or any number higher then your panel long exit delay (120 sec by default))
-* `Arm Stay Exit Delay`: How much time before the panel arms itself to Arm Stay (0 sec or any number higher then your panel long exit delay (120 sec by default))
+* `Arm Away Exit Delay`: How much time users have to exit the location before the panel arms itself to Arm Away (0 sec or any number higher than your panel long exit delay (120 sec by default))
+* `Arm Stay Exit Delay`: How much time before the panel arms itself to Arm Stay (0 sec or any number higher than your panel long exit delay (120 sec by default))
 * `Force Arm`: Bypass open or faulted sensors when arming partition
 
 ## Qolsys Panel Configuration
