@@ -1,5 +1,6 @@
 
 # Homebridge Plugin for Qolsys Panels
+[![verified-by-homebridge](https://badgen.net/badge/homebridge/verified/purple)](https://github.com/homebridge/homebridge/wiki/Verified-Plugins)
 [![npm downloads](https://badgen.net/npm/dt/homebridge-qolsys)](https://www.npmjs.com/package/homebridge-qolsys)
 
 This plugin only supports the IQ Panel basic security features:
