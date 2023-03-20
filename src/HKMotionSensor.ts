@@ -37,8 +37,7 @@ export class HKMotionSensor extends HKSensor {
       setTimeout(() => {
         this.service.updateCharacteristic(this.platform.Characteristic.MotionDetected, MotionDetected );
       }, 2000);
-    }
-    else{
+    } else{
       this.service.updateCharacteristic(this.platform.Characteristic.MotionDetected, MotionDetected );
     }
 
