@@ -32,6 +32,7 @@ export class HKLeakSensor extends HKSensor {
 
     setTimeout(() => {
       this.service.updateCharacteristic(this.platform.Characteristic.LeakDetected, LeakDetected);
+      this.LastEvent = new Date();
     }, this.EventDelayNeeded());
   }
 }

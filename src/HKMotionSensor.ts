@@ -33,6 +33,7 @@ export class HKMotionSensor extends HKSensor {
 
     setTimeout(() => {
       this.service.updateCharacteristic(this.platform.Characteristic.MotionDetected, MotionDetected );
+      this.LastEvent = new Date();
     }, this.EventDelayNeeded());
   }
 

@@ -36,12 +36,16 @@ export class HKContactSensor extends HKSensor {
       setTimeout(() => {
         this.service.getCharacteristic(this.platform.Characteristic.ContactSensorState)
           .updateValue(this.platform.Characteristic.ContactSensorState.CONTACT_DETECTED);
+        this.LastEvent = new Date();
+
       }, this.EventDelayNeeded());
 
     } else{
       setTimeout(() => {
         this.service.getCharacteristic(this.platform.Characteristic.ContactSensorState)
           .updateValue(this.platform.Characteristic.ContactSensorState.CONTACT_NOT_DETECTED);
+        this.LastEvent = new Date();
+
       }, this.EventDelayNeeded());
     }
   }

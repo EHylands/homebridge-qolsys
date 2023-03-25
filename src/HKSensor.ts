@@ -25,15 +25,18 @@ export abstract class HKSensor {
   protected EventDelayNeeded():number{
 
     if(!this.platform.SensorDelay){
+      this.platform.log.debug('No delay to Homekit');
       return 0;
     }
 
     const Delta = new Date().getTime() - this.LastEvent.getTime();
 
     if(Delta < 1000){
+      this.platform.log.debug('Introducing 2 sec delay to Homekit');
       return 2000;
     }
 
+    this.platform.log.debug('No delay to Homekit');
     return 0;
   }
 }

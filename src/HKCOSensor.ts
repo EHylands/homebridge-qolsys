@@ -32,6 +32,7 @@ export class HKCOSensor extends HKSensor {
 
     setTimeout(() => {
       this.service.updateCharacteristic(this.platform.Characteristic.CarbonMonoxideDetected, CODetected );
+      this.LastEvent = new Date();
     }, this.EventDelayNeeded());
   }
 }

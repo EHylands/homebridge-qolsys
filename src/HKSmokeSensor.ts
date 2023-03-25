@@ -33,11 +33,13 @@ export class HKSmokeSensor extends HKSensor {
       setTimeout(() => {
         this.service.updateCharacteristic(this.platform.Characteristic.SmokeDetected,
           this.platform.Characteristic.SmokeDetected.SMOKE_DETECTED);
+        this.LastEvent = new Date();
       }, this.EventDelayNeeded());
     } else{
       setTimeout(() => {
         this.service.updateCharacteristic(this.platform.Characteristic.SmokeDetected,
           this.platform.Characteristic.SmokeDetected.SMOKE_NOT_DETECTED);
+        this.LastEvent = new Date();
       }, this.EventDelayNeeded());
     }
   }
