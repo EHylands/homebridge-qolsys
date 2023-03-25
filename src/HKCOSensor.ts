@@ -15,7 +15,7 @@ export class HKCOSensor extends HKSensor {
 
     this.accessory.getService(this.platform.Service.AccessoryInformation)!
       .setCharacteristic(this.platform.Characteristic.Manufacturer, 'Qolsys Panel')
-      .setCharacteristic(this.platform.Characteristic.Model, 'HK CO2 Sensor')
+      .setCharacteristic(this.platform.Characteristic.Model, 'HK CO Sensor')
       .setCharacteristic(this.platform.Characteristic.SerialNumber, 'QolsysZone' + ZoneId);
 
     this.service.setCharacteristic(this.platform.Characteristic.Name, accessory.displayName);
@@ -29,6 +29,9 @@ export class HKCOSensor extends HKSensor {
   HandleEventDetected(ZoneStatus: QolsysZoneStatus){
 
     const CODetected = ZoneStatus === QolsysZoneStatus.OPEN;
-    this.service.updateCharacteristic(this.platform.Characteristic.CarbonMonoxideDetected, CODetected );
+
+    setTimeout(() => {
+      this.service.updateCharacteristic(this.platform.Characteristic.CarbonMonoxideDetected, CODetected );
+    }, this.EventDelayNeeded());
   }
 }

@@ -111,6 +111,11 @@
         "type": "boolean",
         "title": "Show Qolsys panel debug information",
         "default": false
+      },
+      "SensorDelay":{
+        "type": "boolean",
+        "title": "Sensor minimum trigger duration",
+        "default": false
       }
     }
   },
@@ -180,6 +185,15 @@
             "LogPartition",
             "LogZone",
             "LogDebug"
+          ]
+        },
+        {
+          "title": "Experimental Options",
+          "type": "fieldset",
+          "expandable": true,
+          "expanded": true,
+          "items": [
+            "SensorDelay"
           ]
         }]
     }

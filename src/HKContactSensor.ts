@@ -33,11 +33,16 @@ export class HKContactSensor extends HKSensor {
     const ContactDetected = ZoneStatus === QolsysZoneStatus.CLOSED;
 
     if(ContactDetected){
-      this.service.getCharacteristic(this.platform.Characteristic.ContactSensorState)
-        .updateValue(this.platform.Characteristic.ContactSensorState.CONTACT_DETECTED);
+      setTimeout(() => {
+        this.service.getCharacteristic(this.platform.Characteristic.ContactSensorState)
+          .updateValue(this.platform.Characteristic.ContactSensorState.CONTACT_DETECTED);
+      }, this.EventDelayNeeded());
+
     } else{
-      this.service.getCharacteristic(this.platform.Characteristic.ContactSensorState)
-        .updateValue(this.platform.Characteristic.ContactSensorState.CONTACT_NOT_DETECTED);
+      setTimeout(() => {
+        this.service.getCharacteristic(this.platform.Characteristic.ContactSensorState)
+          .updateValue(this.platform.Characteristic.ContactSensorState.CONTACT_NOT_DETECTED);
+      }, this.EventDelayNeeded());
     }
   }
 }

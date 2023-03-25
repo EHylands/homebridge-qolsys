@@ -29,6 +29,9 @@ export class HKLeakSensor extends HKSensor {
 
   HandleEventDetected(ZoneStatus: QolsysZoneStatus){
     const LeakDetected = ZoneStatus === QolsysZoneStatus.OPEN;
-    this.service.updateCharacteristic(this.platform.Characteristic.LeakDetected, LeakDetected);
+
+    setTimeout(() => {
+      this.service.updateCharacteristic(this.platform.Characteristic.LeakDetected, LeakDetected);
+    }, this.EventDelayNeeded());
   }
 }

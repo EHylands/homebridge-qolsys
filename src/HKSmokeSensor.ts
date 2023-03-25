@@ -30,11 +30,15 @@ export class HKSmokeSensor extends HKSensor {
     const SmokeDetected = ZoneStatus === QolsysZoneStatus.OPEN;
 
     if(SmokeDetected){
-      this.service.updateCharacteristic(this.platform.Characteristic.SmokeDetected,
-        this.platform.Characteristic.SmokeDetected.SMOKE_DETECTED);
+      setTimeout(() => {
+        this.service.updateCharacteristic(this.platform.Characteristic.SmokeDetected,
+          this.platform.Characteristic.SmokeDetected.SMOKE_DETECTED);
+      }, this.EventDelayNeeded());
     } else{
-      this.service.updateCharacteristic(this.platform.Characteristic.SmokeDetected,
-        this.platform.Characteristic.SmokeDetected.SMOKE_NOT_DETECTED);
+      setTimeout(() => {
+        this.service.updateCharacteristic(this.platform.Characteristic.SmokeDetected,
+          this.platform.Characteristic.SmokeDetected.SMOKE_NOT_DETECTED);
+      }, this.EventDelayNeeded());
     }
   }
 }

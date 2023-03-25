@@ -42,6 +42,7 @@ This plugin only supports the IQ Panel basic security features:
 * `Arm Away Exit Delay`: How much time users have to exit the location before the panel arms itself to Arm Away (0 sec or any number higher than your panel long exit delay (120 sec by default))
 * `Arm Stay Exit Delay`: How much time before the panel arms itself to Arm Stay (0 sec or any number higher than your panel long exit delay (120 sec by default))
 * `Force Arm`: Bypass open or faulted sensors when arming partition
+* `Sensor minimum trigger duration`: Some sensors are instantaneously reverting to a closed status after being brought in an open state. This option will introduce a small delay to make sure the event was properly registered by Homekit in Home App.  
 
 ## Qolsys Panel Configuration
 ### IQ2, IQ2+ and IQ4
