@@ -425,15 +425,16 @@ export class QolsysController extends TypedEmitter<QolsysControllerEvent> {
     private ProcessArmingType(PartitionId:number, AlarmMode:QolsysAlarmMode){
       const Partition = this.Partitions[PartitionId];
       if(Partition!== undefined){
+
+        if(Partition.PartitionStatus === QolsysAlarmMode.ENTRY_DELAY){
+          this.Refresh();
+          return;
+        }
+
         if(Partition.SetAlarmMode(AlarmMode)){
 
           // If Exit_Delay, need to run a new refresh to access ARM-AWAY-EXIT-DELAY vs ARM-STAY-EXIT-DELAY
           if(Partition.PartitionStatus === QolsysAlarmMode.EXIT_DELAY){
-            this.Refresh();
-            return;
-          }
-
-          if(Partition.PartitionStatus === QolsysAlarmMode.ENTRY_DELAY){
             this.Refresh();
             return;
           }

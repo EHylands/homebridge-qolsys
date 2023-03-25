@@ -15,7 +15,7 @@ export class HKSecurityPanel {
 
     this.accessory.getService(this.platform.Service.AccessoryInformation)!
       .setCharacteristic(this.platform.Characteristic.Manufacturer, 'Qolsys')
-      .setCharacteristic(this.platform.Characteristic.Model, 'Qolsys Panel')
+      .setCharacteristic(this.platform.Characteristic.Model, 'Qolsys IQ Panel')
       .setCharacteristic(this.platform.Characteristic.SerialNumber, 'QolsysPanel' + this.PartitionId)
       .setCharacteristic(this.platform.Characteristic.Name, accessory.displayName);
 
