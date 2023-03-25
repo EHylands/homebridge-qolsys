@@ -16,6 +16,7 @@ export class QolsysPartition{
     PartitionId: number;
     PartitionName = '';
     PartitionStatus = QolsysAlarmMode.Unknow;
+    PartitionPreviousStatus = QolsysAlarmMode.Unknow;
     EntryDelay = 0;
     ExitDelay = 0;
     ErrorText = '';
@@ -36,6 +37,7 @@ export class QolsysPartition{
 
     SetAlarmMode(AlarmMode: QolsysAlarmMode):boolean{
       if(AlarmMode !== this.PartitionStatus){
+        this.PartitionPreviousStatus = this.PartitionStatus;
         this.PartitionStatus = AlarmMode;
         return true;
       }
