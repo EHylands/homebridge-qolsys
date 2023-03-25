@@ -140,18 +140,12 @@ export class HKSecurityPanel {
 
   private QolsysPartitionStatusToTargetHKStatus(Status: QolsysAlarmMode){
 
-    const PreviousStatus = this.platform.Controller.GetPartitions()[this.PartitionId].PartitionPreviousStatus;
-
     switch(Status){
       case QolsysAlarmMode.EXIT_DELAY:
         return this.platform.Characteristic.SecuritySystemTargetState.AWAY_ARM;
 
       case QolsysAlarmMode.ENTRY_DELAY:
-        if(PreviousStatus === QolsysAlarmMode.ARM_STAY){
-          return this.platform.Characteristic.SecuritySystemTargetState.STAY_ARM;
-        } else{
-          return this.platform.Characteristic.SecuritySystemTargetState.AWAY_ARM;
-        }
+        return this.platform.Characteristic.SecuritySystemTargetState.DISARM;
 
       case QolsysAlarmMode.ARM_STAY_EXIT_DELAY:
         return this.platform.Characteristic.SecuritySystemTargetState.STAY_ARM;
