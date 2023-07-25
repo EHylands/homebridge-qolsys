@@ -82,6 +82,11 @@
         "title": "Show Leak Sensors",
         "default": true
       },
+      "ShowTilt":{
+        "type": "boolean",
+        "title": "Show Tilt Sensors",
+        "default": true
+      },
       "ShowBluetooth":{
         "type": "boolean",
         "title": "Show Bluetooth Sensors",
@@ -171,6 +176,7 @@
             "ShowSmoke",
             "ShowCO",
             "ShowLeak",
+            "ShowTilt",
             "ShowBluetooth",
             "ShowGlassBreak",
             "ShowTakeover"
