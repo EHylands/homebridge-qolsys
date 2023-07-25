@@ -17,6 +17,7 @@ export enum QolsysZoneType{
   TakeoverModule,
   Bluetooth,
   Keypad,
+  KeyFob,
   Unknow
 }
 
@@ -104,11 +105,14 @@ export class QolsysZone{
         this.ZoneType = QolsysZoneType.TakeoverModule;
         break;
 
-        case 'Tilt':
-          //map tilt sensor to door_window since it behaves like a contact
-          this.ZoneType = QolsysZoneType.DoorWindow;
-          break;
-          
+      case 'Tilt':
+        //map tilt sensor to door_window since it behaves like a contact
+        this.ZoneType = QolsysZoneType.DoorWindow;
+        break;
+     
+      case 'KeyFob':
+        this.ZoneType = QolsysZoneType.KeyFob;
+        break;
 
       default:
         this.ZoneType = QolsysZoneType.Unknow;
