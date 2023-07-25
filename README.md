@@ -21,12 +21,12 @@ This plugin only supports the IQ Panel basic security features:
 | [IQ HUB](https://qolsys.com/iq4-hub/) |Not Supported |  |
 | [IQ2](https://qolsys.com/iq-panel-2/) | Supported | Software >= 2.4.0 |
 | [IQ2+](https://qolsys.com/iq-panel-2-plus/) | Supported| For software >= 2.6.2: Enable 6-digit user codes |
-| [IQ4](https://qolsys.com/iq-panel-4/) | Supported | Software >= 4.1.0 |
+| [IQ4](https://qolsys.com/iq-panel-4/) | Supported | Software >= 4.1.0,  >= 4.2.0: Enable 6-digit user codes |
 | [IQ4 HUB](https://qolsys.com/iq4-hub/) | Status Pending |  |
 
 ## Supported Sensors
 - Motion and Panel Motion
-- Door, Window
+- Door, Window, Tilt
 - Water
 - Smoke Detector
 - CO Detector
@@ -46,11 +46,21 @@ This plugin only supports the IQ Panel basic security features:
 * `Sensor minimum trigger duration`: Some sensors are instantaneously reverting to a closed status after being brought in an open state. This option will introduce a small delay to make sure the event was properly registered by Homekit in Home App.  
 
 ## Qolsys Panel Configuration
+
+Prerequsite: On the latest Qolsys firmwaare 6 digit PIN codes must be enabled.
+- Settings
+- Advanced Settings
+- Enter Dealer Code (defaults to 2222)
+- Installation
+- Dealer Settings
+- 6 Digit User Code
+Once enabled all existing codes will have 00 appended.
+
 ### IQ2, IQ2+ and IQ4
 1. Start by enabling Control 4 integration on Qolsys panel:
 - Settings
 - Advanced Settings 
-- Enter Dealer Code (defaults to 2222)
+- Enter Dealer Code (defaults to 2222 or 222200)
 - Installation
 - Devices
 - WIFI Devices
@@ -61,12 +71,14 @@ This plugin only supports the IQ Panel basic security features:
 2. Reveal Secure Access Token:
 - Settings
 - Advanced Settings 
-- Enter Dealer Code (defaults to 2222)
+- Enter Dealer Code (defaults to 2222 or 222200)
 - Installation
 - Devices
 - WIFI Devices
 - 3rd Party Connections
 - Select Reveal Secure Token field
+
+Note: Once Control 4 is enabled you have 15 minutes to view the access token, configure the plugin, and have it make it's initial connection to the panel. If no connection is made in this time the panel will disable the Control 4 integration and reboot. (This behaviore may be firmware dependent)
 
 ## Plugin Operation
 ### HomeKit Security System Accessory:
