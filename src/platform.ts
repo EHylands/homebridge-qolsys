@@ -415,6 +415,16 @@ export class HBQolsysPanel implements DynamicPlatformPlugin {
         }
       }
 
+      case QolsysZoneType.Tilt :{
+        if(this.ShowContact){
+          this.Zones[Zone.ZoneId] = new HKContactSensor(this, Accessory, Zone.ZoneId);
+          return true;
+        } else{
+          this.log.info('Zone' + Zone.ZoneId + ': Skipped in config file - ' + QolsysZoneType[Zone.ZoneType]);
+          return false;
+        }
+      }
+
       default:
         this.log.info('Zone' + Zone.ZoneId + ': No HomeKit plugin available - ' + QolsysZoneType[Zone.ZoneType]);
         return false;
