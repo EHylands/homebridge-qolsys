@@ -39,7 +39,7 @@ export class HKSecurityPanel {
       .setProps({ validValues: ValidCurrentStates});
 
     this.service.getCharacteristic(this.platform.api.hap.Characteristic.SecuritySystemTargetState)
-      .setProps({ validValues: ValidTargetStates });
+      .setProps({ validValues: ValidTargetStates});
 
     this.service.getCharacteristic(this.platform.Characteristic.SecuritySystemTargetState)
       .onSet(this.handleSecuritySystemTargetStateSet.bind(this));

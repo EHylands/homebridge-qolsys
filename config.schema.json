@@ -32,7 +32,7 @@
         "title":"User Pin Code",
         "type": "string",
         "required": true,
-        "default": ""
+        "default": "0000"
       },
       "ForceArm":{
         "title":"Force Arm",
