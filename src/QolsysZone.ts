@@ -109,7 +109,7 @@ export class QolsysZone{
       case 'Tilt':
         this.ZoneType = QolsysZoneType.Tilt;
         break;
-     
+
       case 'KeyFob':
         this.ZoneType = QolsysZoneType.KeyFob;
         break;

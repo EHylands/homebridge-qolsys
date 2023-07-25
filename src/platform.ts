@@ -42,6 +42,7 @@ export class HBQolsysPanel implements DynamicPlatformPlugin {
   private ShowCO = true;
   private ShowSmoke = true;
   private ShowLeak = true;
+  private ShowTilt = true;
   private ShowBluetooth = false;
   private ShowGlassBreak = false;
   private ShowTakeover = false;
@@ -129,6 +130,10 @@ export class HBQolsysPanel implements DynamicPlatformPlugin {
 
     if(this.config.ShowLeak !== undefined){
       this.ShowLeak = this.config.ShowLeak;
+    }
+
+    if(this.config.Tilt !== undefined){
+      this.ShowTilt = this.config.ShowTilt;
     }
 
     if(this.config.ShowBluetooth !== undefined){
@@ -416,7 +421,7 @@ export class HBQolsysPanel implements DynamicPlatformPlugin {
       }
 
       case QolsysZoneType.Tilt :{
-        if(this.ShowContact){
+        if(this.ShowTilt){
           this.Zones[Zone.ZoneId] = new HKContactSensor(this, Accessory, Zone.ZoneId);
           return true;
         } else{
