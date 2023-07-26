@@ -1,4 +1,4 @@
-import { Service, PlatformAccessory} from 'homebridge';
+import { Service} from 'homebridge';
 import { QolsysAlarmMode} from './QolsysPartition';
 import { HBQolsysPanel } from './platform';
 import { HKAccessory } from './HKAccessory';
