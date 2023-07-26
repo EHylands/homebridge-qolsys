@@ -1,4 +1,4 @@
-import { Service, PlatformAccessory } from 'homebridge';
+import { Service } from 'homebridge';
 import { HKSensor } from './HKSensor';
 import { QolsysZoneStatus} from './QolsysZone';
 import { HKSensorType, HBQolsysPanel } from './platform';
@@ -6,32 +6,34 @@ import { HKSensorType, HBQolsysPanel } from './platform';
 export class HKMotionSensor extends HKSensor {
 
   private InitialRun = true;
-  private TriggerDuration = 330000; // 5 minutes 30 sec
   private Timer: ReturnType<typeof setTimeout>;
+  private service: Service;
 
   constructor(
     protected readonly platform: HBQolsysPanel,
-    protected readonly accessory: PlatformAccessory,
-    readonly ZoneId: number,
+    protected ZoneId: number,
+    protected readonly Name:string,
+    protected readonly UUID,
   ) {
 
-    super(platform, accessory, ZoneId, HKSensorType.MotionSensor);
+    super(platform, ZoneId, HKSensorType.MotionSensor, Name, UUID);
 
     this.Timer = setTimeout(() => {/**/}, 0);
 
     // set accessory information
-    this.accessory.getService(this.platform.Service.AccessoryInformation)!
-      .setCharacteristic(this.platform.Characteristic.Manufacturer, 'Qolsys Panel')
+    this.Accessory.getService(this.platform.Service.AccessoryInformation)!
       .setCharacteristic(this.platform.Characteristic.Model, 'HK Motion Sensor')
       .setCharacteristic(this.platform.Characteristic.SerialNumber, 'QolsysZone' + ZoneId);
 
-    this.service.setCharacteristic(this.platform.Characteristic.Name, accessory.displayName);
+    //this.service.setCharacteristic(this.platform.Characteristic.Name, this.Accessory.displayName);
+    this.service = this.Accessory.getService(this.platform.Service.MotionSensor)
+    || this.Accessory.addService(this.platform.Service.MotionSensor);
   }
 
-  GetService():Service{
-    return this.accessory.getService(this.platform.Service.MotionSensor)
-    || this.accessory.addService(this.platform.Service.MotionSensor);
-  }
+  //GetService():Service{
+  //  return this.Accessory.getService(this.platform.Service.MotionSensor)
+  //  || this.Accessory.addService(this.platform.Service.MotionSensor);
+  //}
 
   HandleEventDetected(ZoneStatus: QolsysZoneStatus){
 
@@ -44,12 +46,11 @@ export class HKMotionSensor extends HKSensor {
 
     if(MotionDetected){
       this.service.updateCharacteristic(this.platform.Characteristic.MotionDetected, MotionDetected);
-
       clearTimeout(this.Timer);
 
       this.Timer = setTimeout(() => {
         this.service.updateCharacteristic(this.platform.Characteristic.MotionDetected, !MotionDetected );
-      }, this.TriggerDuration);
+      }, this.platform.MotionDelay * 60 * 1000);
     }
   }
 }

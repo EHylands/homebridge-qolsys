@@ -12,6 +12,7 @@ import { QolsysPartition, QolsysAlarmMode } from './QolsysPartition';
 import { TypedEmitter } from 'tiny-typed-emitter';
 import tls = require('tls');
 import net = require('net');
+import { compileFunction } from 'vm';
 
 interface PayloadJSON{
   event:string;
@@ -303,6 +304,7 @@ export class QolsysController extends TypedEmitter<QolsysControllerEvent> {
           this.LastRefreshDate = new Date();
 
         }catch(error){
+          console.log(error);
           this.emit('PrintDebugInfo', 'JSON ERROR OR PARTIAL MESSAGE');
           this.emit('PrintDebugInfo', 'Received: ' + FormattedMessage);
           this.PartialMessage = FormattedMessage;
@@ -447,7 +449,6 @@ export class QolsysController extends TypedEmitter<QolsysControllerEvent> {
     }
 
     private ProcessSummary(Payload:PayloadJSON){
-
       for( const PartitionId in Payload.partition_list){
         const part = Payload.partition_list[PartitionId];
         const Id = Number(part.partition_id);
