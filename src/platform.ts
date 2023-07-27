@@ -315,17 +315,17 @@ export class HBQolsysPanel implements DynamicPlatformPlugin {
 
           if(this.MotionSensorMode === 'Motion'){
             this.Zones[Zone.ZoneId] = new HKMotionOccupancySensor(this, Zone.ZoneId, Zone.ZoneName,
-              'QolsysZone' + Zone.ZoneType + Zone.ZoneId + 'MotionOccupancy', true, false);
+              'QolsysZone' + Zone.ZoneType + Zone.ZoneId, true, false);
           }
 
           if(this.MotionSensorMode === 'Occupancy'){
             this.Zones[Zone.ZoneId] = new HKMotionOccupancySensor(this, Zone.ZoneId, Zone.ZoneName,
-              'QolsysZone' + Zone.ZoneType + Zone.ZoneId + 'MotionOccupancy', false, true);
+              'QolsysZone' + Zone.ZoneType + Zone.ZoneId, false, true);
           }
 
           if(this.MotionSensorMode === 'MotionOccupancy'){
             this.Zones[Zone.ZoneId] = new HKMotionOccupancySensor(this, Zone.ZoneId, Zone.ZoneName,
-              'QolsysZone' + Zone.ZoneType + Zone.ZoneId + 'MotionOccupancy', true, true);
+              'QolsysZone' + Zone.ZoneType + Zone.ZoneId, true, true);
           }
 
           return true;

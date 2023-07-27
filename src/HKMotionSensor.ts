@@ -25,15 +25,9 @@ export class HKMotionSensor extends HKSensor {
       .setCharacteristic(this.platform.Characteristic.Model, 'HK Motion Sensor')
       .setCharacteristic(this.platform.Characteristic.SerialNumber, 'QolsysZone' + ZoneId);
 
-    //this.service.setCharacteristic(this.platform.Characteristic.Name, this.Accessory.displayName);
     this.service = this.Accessory.getService(this.platform.Service.MotionSensor)
     || this.Accessory.addService(this.platform.Service.MotionSensor);
   }
-
-  //GetService():Service{
-  //  return this.Accessory.getService(this.platform.Service.MotionSensor)
-  //  || this.Accessory.addService(this.platform.Service.MotionSensor);
-  //}
 
   HandleEventDetected(ZoneStatus: QolsysZoneStatus){
 

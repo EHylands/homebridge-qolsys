@@ -19,8 +19,8 @@ export abstract class HKSensor extends HKAccessory{
     this.LastEvent = new Date();
   }
 
-  //abstract GetService(): Service;
   abstract HandleEventDetected(ZoneStatus: QolsysZoneStatus);
+
   protected EventDelayNeeded():number{
 
     if(!this.platform.SensorDelay){
@@ -33,7 +33,6 @@ export abstract class HKSensor extends HKAccessory{
       return 2000;
     }
 
-    this.platform.log.debug('No delay to Homekit');
     return 0;
   }
 }
