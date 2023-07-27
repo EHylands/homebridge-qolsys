@@ -4,8 +4,6 @@ import { QolsysController, QolsysControllerError } from './QolsysController';
 import { QolsysZone, QolsysZoneStatus, QolsysZoneType} from './QolsysZone';
 import { QolsysAlarmMode} from './QolsysPartition';
 import { HKSecurityPanel } from './HKSecurityPanel';
-//import { HKMotionSensor } from './HKMotionSensor';
-//import { HKOccupancySensor } from './HKOccupancySensor';
 import { HKContactSensor } from './HKContactSensor';
 import { HKLeakSensor } from './HKLeakSensor';
 import { HKSmokeSensor } from './HKSmokeSensor';
@@ -53,15 +51,15 @@ export class HBQolsysPanel implements DynamicPlatformPlugin {
   private LogPartition = true;
   private LogZone = false;
   private LogDebug = false;
-
   ForceArm = true;
   AwayExitDelay = 120;
   HomeExitDelay = 120;
-  SensorDelay = false;
+  SensorDelay = true;
+
+  // Motion Occupancy sensors options
   MotionDelay = 5;
   OccupancyDelay = 15;
   MotionSensorMode = 'MotionOnly';
-
 
   constructor(
     public readonly log: Logger,
@@ -321,17 +319,17 @@ export class HBQolsysPanel implements DynamicPlatformPlugin {
 
           if(this.MotionSensorMode === 'Motion'){
             this.Zones[Zone.ZoneId] = new HKMotionOccupancySensor(this, Zone.ZoneId, Zone.ZoneName,
-              'QolsysZone' + Zone.ZoneType + Zone.ZoneId, true, false);
+              'QolsysZone' + Zone.ZoneType + Zone.ZoneId + 'MotionOccupancy', true, false);
           }
 
           if(this.MotionSensorMode === 'Occupancy'){
             this.Zones[Zone.ZoneId] = new HKMotionOccupancySensor(this, Zone.ZoneId, Zone.ZoneName,
-              'QolsysZone' + Zone.ZoneType + Zone.ZoneId, false, true);
+              'QolsysZone' + Zone.ZoneType + Zone.ZoneId + 'MotionOccupancy', false, true);
           }
 
           if(this.MotionSensorMode === 'MotionOccupancy'){
             this.Zones[Zone.ZoneId] = new HKMotionOccupancySensor(this, Zone.ZoneId, Zone.ZoneName,
-              'QolsysZone' + Zone.ZoneType + Zone.ZoneId, true, true);
+              'QolsysZone' + Zone.ZoneType + Zone.ZoneId + 'MotionOccupancy', true, true);
           }
 
           return true;

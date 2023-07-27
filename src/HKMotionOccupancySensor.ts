@@ -13,8 +13,8 @@ export class HKMotionOccupancySensor extends HKSensor {
     protected ZoneId: number,
     protected readonly Name:string,
     protected readonly UUID,
-    protected readonly MotionSensor:boolean,
-    protected readonly OccupancySensor:boolean,
+    protected readonly MotionSensorActive:boolean,
+    protected readonly OccupancySensorActive:boolean,
   ) {
 
     super(platform, ZoneId, HKSensorType.MotionOccupancySensor, Name, UUID);
@@ -27,7 +27,7 @@ export class HKMotionOccupancySensor extends HKSensor {
       .setCharacteristic(this.platform.Characteristic.Model, 'HK Motion Occupancy Sensor')
       .setCharacteristic(this.platform.Characteristic.SerialNumber, 'QolsysZone' + ZoneId);
 
-    if(MotionSensor){
+    if(MotionSensorActive){
       this.AddService(this.platform.Service.MotionSensor, Name, 'Motion');
     } else{
       // Motion Sensor not configured
@@ -39,7 +39,7 @@ export class HKMotionOccupancySensor extends HKSensor {
       }
     }
 
-    if(OccupancySensor){
+    if(OccupancySensorActive){
       this.AddService(this.platform.Service.OccupancySensor, Name, 'Occupancy');
     } else{
       // Occupancy Sensor not configured
@@ -58,12 +58,12 @@ export class HKMotionOccupancySensor extends HKSensor {
 
     if(this.InitialRun && !MotionDetected){
 
-      if(this.MotionSensor){
+      if(this.MotionSensorActive){
         this.Accessory.getServiceById(this.platform.Service.MotionSensor, 'Motion')
           ?.updateCharacteristic(this.platform.Characteristic.MotionDetected, MotionDetected);
       }
 
-      if(this.OccupancySensor){
+      if(this.OccupancySensorActive){
         this.Accessory.getServiceById(this.platform.Service.OccupancySensor, 'Occupancy')
           ?.updateCharacteristic(this.platform.Characteristic.OccupancyDetected, MotionDetected);
       }
@@ -73,7 +73,7 @@ export class HKMotionOccupancySensor extends HKSensor {
 
     if(MotionDetected){
 
-      if(this.MotionSensor){
+      if(this.MotionSensorActive){
         this.Accessory.getServiceById(this.platform.Service.MotionSensor, 'Motion')
           ?.updateCharacteristic(this.platform.Characteristic.MotionDetected, MotionDetected);
 
@@ -87,7 +87,7 @@ export class HKMotionOccupancySensor extends HKSensor {
 
       }
 
-      if(this.OccupancySensor){
+      if(this.OccupancySensorActive){
         this.Accessory.getServiceById(this.platform.Service.OccupancySensor, 'Occupancy')
           ?.updateCharacteristic(this.platform.Characteristic.OccupancyDetected, MotionDetected);
 

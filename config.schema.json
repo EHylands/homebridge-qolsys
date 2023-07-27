@@ -185,7 +185,7 @@
           ]
         },
         {
-          "title": "Security Panel Operation",
+          "title": "Security Panel Options",
           "type": "fieldset",
           "expandable": true,
           "expanded": true,
