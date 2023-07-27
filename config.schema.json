@@ -38,19 +38,28 @@
         "title":"Force Arm",
         "type": "boolean",
         "required": true,
-        "default": true
+        "default": true,
+        "condition": {
+          "functionBody": "return model.ShowSecurityPanel === true;"
+        }
       },
       "AwayExitDelay":{
         "title":"Arm Away Exit Delay",
         "type": "integer",
         "required": true,
-        "default": 120
+        "default": 120,
+        "condition": {
+          "functionBody": "return model.ShowSecurityPanel === true;"
+        }
       },
       "HomeExitDelay":{
         "title":"Arm Stay Exit Delay",
         "type": "integer",
         "required": true,
-        "default": 120
+        "default": 120,
+        "condition": {
+          "functionBody": "return model.ShowSecurityPanel === true;"
+        }
       },
       "ShowSecurityPanel":{
         "type": "boolean",
@@ -134,7 +143,7 @@
       "MotionDelay":{
         "type": "integer",
         "title": "Motion sensor trigger duration (min)",
-        "minimum": 1,
+        "minimum": 0,
         "maximum": 60,
         "default": 6,
         "condition": {
@@ -145,7 +154,7 @@
       "OccupancyDelay":{
         "type": "integer",
         "title": "Occupancy sensor trigger duration (min)",
-        "minimum": 15,
+        "minimum": 5,
         "maximum": 1440,
         "default": 30,
         "condition": {
