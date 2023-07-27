@@ -320,18 +320,18 @@ export class HBQolsysPanel implements DynamicPlatformPlugin {
         if(this.ShowMotion){
 
           if(this.MotionSensorMode === 'Motion'){
-            this.Zones[Zone.ZoneId] = new HKMotionSensor(this, Zone.ZoneId, Zone.ZoneName,
-              'QolsysZone' + Zone.ZoneType + Zone.ZoneId);
+            this.Zones[Zone.ZoneId] = new HKMotionOccupancySensor(this, Zone.ZoneId, Zone.ZoneName,
+              'QolsysZone' + Zone.ZoneType + Zone.ZoneId, true, false);
           }
 
           if(this.MotionSensorMode === 'Occupancy'){
-            this.Zones[Zone.ZoneId] = new HKOccupancySensor(this, Zone.ZoneId, Zone.ZoneName,
-              'QolsysZone' + Zone.ZoneType + Zone.ZoneId +'Occupancy');
+            this.Zones[Zone.ZoneId] = new HKMotionOccupancySensor(this, Zone.ZoneId, Zone.ZoneName,
+              'QolsysZone' + Zone.ZoneType + Zone.ZoneId, false, true);
           }
 
           if(this.MotionSensorMode === 'MotionOccupancy'){
             this.Zones[Zone.ZoneId] = new HKMotionOccupancySensor(this, Zone.ZoneId, Zone.ZoneName,
-              'QolsysZone' + Zone.ZoneType + Zone.ZoneId +'MotionOccupancy');
+              'QolsysZone' + Zone.ZoneType + Zone.ZoneId, true, true);
           }
 
           return true;
@@ -346,17 +346,18 @@ export class HBQolsysPanel implements DynamicPlatformPlugin {
         if(this.ShowMotion){
 
           if(this.MotionSensorMode === 'Motion'){
-            this.Zones[Zone.ZoneId] = new HKMotionSensor(this, Zone.ZoneId, Zone.ZoneName, 'QolsysZone' + Zone.ZoneType + Zone.ZoneId);
+            this.Zones[Zone.ZoneId] = new HKMotionOccupancySensor(this, Zone.ZoneId, Zone.ZoneName,
+              'QolsysZone' + Zone.ZoneType + Zone.ZoneId, true, false);
           }
 
           if(this.MotionSensorMode === 'Occupancy'){
-            this.Zones[Zone.ZoneId] = new HKOccupancySensor(this, Zone.ZoneId, Zone.ZoneName,
-              'QolsysZone' + Zone.ZoneType + Zone.ZoneId +'Occupancy');
+            this.Zones[Zone.ZoneId] = new HKMotionOccupancySensor(this, Zone.ZoneId, Zone.ZoneName,
+              'QolsysZone' + Zone.ZoneType + Zone.ZoneId, false, true);
           }
 
           if(this.MotionSensorMode === 'MotionOccupancy'){
             this.Zones[Zone.ZoneId] = new HKMotionOccupancySensor(this, Zone.ZoneId, Zone.ZoneName,
-              'QolsysZone' + Zone.ZoneType + Zone.ZoneId +'MotionOccupanccy');
+              'QolsysZone' + Zone.ZoneType + Zone.ZoneId, true, true);
           }
 
 

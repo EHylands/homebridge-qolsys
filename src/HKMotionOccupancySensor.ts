@@ -13,6 +13,8 @@ export class HKMotionOccupancySensor extends HKSensor {
     protected ZoneId: number,
     protected readonly Name:string,
     protected readonly UUID,
+    protected readonly MotionSensor:boolean,
+    protected readonly OccupancySensor:boolean,
   ) {
 
     super(platform, ZoneId, HKSensorType.MotionOccupancySensor, Name, UUID);
@@ -25,8 +27,29 @@ export class HKMotionOccupancySensor extends HKSensor {
       .setCharacteristic(this.platform.Characteristic.Model, 'HK Motion Occupancy Sensor')
       .setCharacteristic(this.platform.Characteristic.SerialNumber, 'QolsysZone' + ZoneId);
 
-    this.AddService(this.platform.Service.MotionSensor, Name, 'Motion');
-    this.AddService(this.platform.Service.OccupancySensor, Name, 'Occupancy');
+    if(MotionSensor){
+      this.AddService(this.platform.Service.MotionSensor, Name, 'Motion');
+    } else{
+      // Motion Sensor not configured
+      // Remove MotionSensor service if present
+      for(const service of this.Accessory.services){
+        if(service.UUID === this.platform.Service.MotionSensor.UUID ){
+          this.Accessory.removeService(service);
+        }
+      }
+    }
+
+    if(OccupancySensor){
+      this.AddService(this.platform.Service.OccupancySensor, Name, 'Occupancy');
+    } else{
+      // Occupancy Sensor not configured
+      // Remove OccupancySensor service if present
+      for(const service of this.Accessory.services){
+        if(service.UUID === this.platform.Service.OccupancySensor.UUID){
+          this.Accessory.removeService(service);
+        }
+      }
+    }
   }
 
   HandleEventDetected(ZoneStatus: QolsysZoneStatus){
@@ -35,37 +58,47 @@ export class HKMotionOccupancySensor extends HKSensor {
 
     if(this.InitialRun && !MotionDetected){
 
-      this.Accessory.getServiceById(this.platform.Service.MotionSensor, 'Motion')
-        ?.updateCharacteristic(this.platform.Characteristic.MotionDetected, MotionDetected);
+      if(this.MotionSensor){
+        this.Accessory.getServiceById(this.platform.Service.MotionSensor, 'Motion')
+          ?.updateCharacteristic(this.platform.Characteristic.MotionDetected, MotionDetected);
+      }
 
-      this.Accessory.getServiceById(this.platform.Service.OccupancySensor, 'Occupancy')
-        ?.updateCharacteristic(this.platform.Characteristic.OccupancyDetected, MotionDetected);
+      if(this.OccupancySensor){
+        this.Accessory.getServiceById(this.platform.Service.OccupancySensor, 'Occupancy')
+          ?.updateCharacteristic(this.platform.Characteristic.OccupancyDetected, MotionDetected);
+      }
 
       this.InitialRun = false;
     }
 
     if(MotionDetected){
 
-      this.Accessory.getServiceById(this.platform.Service.MotionSensor, 'Motion')
-        ?.updateCharacteristic(this.platform.Characteristic.MotionDetected, MotionDetected);
-
-      this.Accessory.getServiceById(this.platform.Service.OccupancySensor, 'Occupancy')
-        ?.updateCharacteristic(this.platform.Characteristic.OccupancyDetected, MotionDetected);
-
-      clearTimeout(this.TimerMotion);
-      clearTimeout(this.TimerOccupancy);
-
-      // Motion timeout
-      this.TimerMotion = setTimeout(() => {
+      if(this.MotionSensor){
         this.Accessory.getServiceById(this.platform.Service.MotionSensor, 'Motion')
-          ?.updateCharacteristic(this.platform.Characteristic.MotionDetected, !MotionDetected);
-      }, this.platform.MotionDelay * 60 * 1000);
+          ?.updateCharacteristic(this.platform.Characteristic.MotionDetected, MotionDetected);
 
-      // Occupancy timeout
-      this.TimerOccupancy = setTimeout(() => {
+        clearTimeout(this.TimerMotion);
+
+        // Motion timeout
+        this.TimerMotion = setTimeout(() => {
+          this.Accessory.getServiceById(this.platform.Service.MotionSensor, 'Motion')
+            ?.updateCharacteristic(this.platform.Characteristic.MotionDetected, !MotionDetected);
+        }, this.platform.MotionDelay * 60 * 1000);
+
+      }
+
+      if(this.OccupancySensor){
         this.Accessory.getServiceById(this.platform.Service.OccupancySensor, 'Occupancy')
-          ?.updateCharacteristic(this.platform.Characteristic.OccupancyDetected, !MotionDetected);
-      }, this.platform.OccupancyDelay * 60 * 1000);
+          ?.updateCharacteristic(this.platform.Characteristic.OccupancyDetected, MotionDetected);
+
+        clearTimeout(this.TimerOccupancy);
+
+        // Occupancy timeout
+        this.TimerOccupancy = setTimeout(() => {
+          this.Accessory.getServiceById(this.platform.Service.OccupancySensor, 'Occupancy')
+            ?.updateCharacteristic(this.platform.Characteristic.OccupancyDetected, !MotionDetected);
+        }, this.platform.OccupancyDelay * 60 * 1000);
+      }
     }
   }
 }

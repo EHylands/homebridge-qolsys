@@ -123,7 +123,7 @@
         "default": false
       },
       "MotionSensorMode": {
-        "title": "Homekit Motion Sensor Mode",
+        "title": "Homekit Sensor Mode",
         "type": "string",
         "default": "Motion",
         "oneOf": [
@@ -131,14 +131,20 @@
           { "title": "Show as Occupancy Sensors", "enum": ["Occupancy"] },
           { "title": "Show as Motion and Occupancy Sensors", "enum": ["MotionOccupancy"] }
         ],
+        "condition": {
+          "functionBody": "return model.ShowMotion === true;"
+        },
         "required": true
       },
       "MotionDelay":{
         "type": "integer",
         "title": "Motion sensor trigger duration (min)",
-        "minimum": 5,
+        "minimum": 1,
         "maximum": 60,
-        "default": 10,
+        "default": 6,
+        "condition": {
+          "functionBody": "return model.ShowMotion === true && (model.MotionSensorMode === 'Motion' || model.MotionSensorMode === 'MotionOccupancy');"
+        },
         "required": true
       },
       "OccupancyDelay":{
@@ -147,6 +153,9 @@
         "minimum": 15,
         "maximum": 1440,
         "default": 30,
+        "condition": {
+          "functionBody": "return model.ShowMotion === true && (model.MotionSensorMode === 'Occupancy' || model.MotionSensorMode === 'MotionOccupancy');"
+        },
         "required": true
 
       }
