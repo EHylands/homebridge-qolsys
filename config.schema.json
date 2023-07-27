@@ -117,11 +117,6 @@
         "title": "Show Qolsys panel debug information",
         "default": false
       },
-      "SensorDelay":{
-        "type": "boolean",
-        "title": "Sensor minimum trigger duration",
-        "default": false
-      },
       "MotionSensorMode": {
         "title": "Homekit Sensor Mode",
         "type": "string",
@@ -241,7 +236,6 @@
           "expandable": true,
           "expanded": true,
           "items": [
-            "SensorDelay"
           ]
         }]
     }

@@ -177,10 +177,6 @@ export class HBQolsysPanel implements DynamicPlatformPlugin {
       this.HomeExitDelay = this.config.HomeExitDelay;
     }
 
-    if(this.config.SensorDelay !== undefined){
-      this.SensorDelay = this.config.SensorDelay;
-    }
-
     if(this.config.OccupancyDelay !== undefined){
       this.OccupancyDelay = this.config.OccupancyDelay;
     }
@@ -467,6 +463,8 @@ export class HBQolsysPanel implements DynamicPlatformPlugin {
     this.log.info('-----------------------------------------');
     this.log.info('Qolsys Panel Information');
     this.log.info('-----------------------------------------');
+
+    this.log.info('Motion sensor mode: ' + this.MotionSensorMode);
 
     for (const PartitionId in this.Controller.GetPartitions()){
       const Partition = this.Controller.GetPartitions()[PartitionId];
