@@ -1,29 +1,27 @@
-import { Service, PlatformAccessory } from 'homebridge';
+import { Service } from 'homebridge';
 import { HKSensor } from './HKSensor';
 import { QolsysZoneStatus} from './QolsysZone';
 import { HKSensorType, HBQolsysPanel } from './platform';
 
 export class HKCOSensor extends HKSensor {
 
+  private service: Service;
+
   constructor(
-    protected readonly platform:HBQolsysPanel,
-    protected readonly accessory: PlatformAccessory,
-    readonly ZoneId: number,
+    protected readonly platform: HBQolsysPanel,
+    protected ZoneId: number,
+    protected readonly Name:string,
+    protected readonly UUID,
   ) {
 
-    super(platform, accessory, ZoneId, HKSensorType.COSensor);
+    super(platform, ZoneId, HKSensorType.COSensor, Name, UUID);
 
-    this.accessory.getService(this.platform.Service.AccessoryInformation)!
-      .setCharacteristic(this.platform.Characteristic.Manufacturer, 'Qolsys Panel')
+    this.Accessory.getService(this.platform.Service.AccessoryInformation)!
       .setCharacteristic(this.platform.Characteristic.Model, 'HK CO Sensor')
       .setCharacteristic(this.platform.Characteristic.SerialNumber, 'QolsysZone' + ZoneId);
 
-    this.service.setCharacteristic(this.platform.Characteristic.Name, accessory.displayName);
-  }
-
-  GetService():Service{
-    return this.accessory.getService(this.platform.Service.CarbonMonoxideSensor)
-    || this.accessory.addService(this.platform.Service.CarbonMonoxideSensor);
+    this.service = this.Accessory.getService(this.platform.Service.CarbonMonoxideSensor)
+    || this.Accessory.addService(this.platform.Service.CarbonMonoxideSensor);
   }
 
   HandleEventDetected(ZoneStatus: QolsysZoneStatus){

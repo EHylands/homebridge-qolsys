@@ -44,6 +44,13 @@ This plugin only supports the IQ Panel basic security features:
 * `Arm Stay Exit Delay`: How much time before the panel arms itself to Arm Stay (0 sec or any number higher than your panel long exit delay (120 sec by default))
 * `Force Arm`: Bypass open or faulted sensors when arming partition
 * `Sensor minimum trigger duration`: Some sensors are instantaneously reverting to a closed status after being brought in an open state. This option will introduce a small delay to make sure the event was properly registered by Homekit in Home App.  
+### Motion Sensors
+As of version 0.4, Qolsys motions sensors can now be presented as motion or occupancy sensors with a user selectable option in Homebridge UI. The available options are:
+- Motion sensor only
+- Occupancy sensor only
+- Motion and occupancy sensors
+
+*** Upgrade to version 0.4 will unfortunatly be disruptive for established automations using motion sensors
 
 ## Qolsys Panel Configuration
 

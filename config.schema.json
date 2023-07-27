@@ -54,12 +54,12 @@
       },
       "ShowSecurityPanel":{
         "type": "boolean",
-        "title": "Show Security Panels",
+        "title": "Show Homekit Security System Accessories",
         "default": true
       },
       "ShowMotion":{
         "type": "boolean",
-        "title": "Show Motion Sensors",
+        "title": "Show Homekit Motion and Occupancy Sensors",
         "default": true
       },
       "ShowContact":{
@@ -121,6 +121,43 @@
         "type": "boolean",
         "title": "Sensor minimum trigger duration",
         "default": false
+      },
+      "MotionSensorMode": {
+        "title": "Homekit Sensor Mode",
+        "type": "string",
+        "default": "Motion",
+        "oneOf": [
+          { "title": "Show as Motion Sensors", "enum": ["Motion"] },
+          { "title": "Show as Occupancy Sensors", "enum": ["Occupancy"] },
+          { "title": "Show as Motion and Occupancy Sensors", "enum": ["MotionOccupancy"] }
+        ],
+        "condition": {
+          "functionBody": "return model.ShowMotion === true;"
+        },
+        "required": true
+      },
+      "MotionDelay":{
+        "type": "integer",
+        "title": "Motion sensor trigger duration (min)",
+        "minimum": 1,
+        "maximum": 60,
+        "default": 6,
+        "condition": {
+          "functionBody": "return model.ShowMotion === true && (model.MotionSensorMode === 'Motion' || model.MotionSensorMode === 'MotionOccupancy');"
+        },
+        "required": true
+      },
+      "OccupancyDelay":{
+        "type": "integer",
+        "title": "Occupancy sensor trigger duration (min)",
+        "minimum": 15,
+        "maximum": 1440,
+        "default": 30,
+        "condition": {
+          "functionBody": "return model.ShowMotion === true && (model.MotionSensorMode === 'Occupancy' || model.MotionSensorMode === 'MotionOccupancy');"
+        },
+        "required": true
+
       }
     }
   },
@@ -148,30 +185,35 @@
           ]
         },
         {
-          "title": "Panel Operation",
-          "type": "fieldset",
-          "expandable": true,
-          "expanded": true,
-          "items": [
-            {
-              "type": "flex",
-              "flex-flow": "row wrap",
-              "items": [
-                "AwayExitDelay",
-                "HomeExitDelay"
-              ]
-            },
-            "ForceArm"
-          ]
-        },
-        {
-          "title": "Accessories and Sensors",
+          "title": "Security Panel Options",
           "type": "fieldset",
           "expandable": true,
           "expanded": true,
           "items": [
             "ShowSecurityPanel",
+            "ForceArm",
+            "AwayExitDelay",
+            "HomeExitDelay"
+          ]
+        },
+        {
+          "title": "Motion Sensors Options",
+          "type": "fieldset",
+          "expandable": true,
+          "expanded": true,
+          "items": [
             "ShowMotion",
+            "MotionSensorMode",
+            "MotionDelay",
+            "OccupancyDelay"
+          ]
+        },
+        {
+          "title": "Other Sensors Options",
+          "type": "fieldset",
+          "expandable": true,
+          "expanded": true,
+          "items": [
             "ShowContact",
             "ShowSmoke",
             "ShowCO",

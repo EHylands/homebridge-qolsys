@@ -1,30 +1,28 @@
-import { Service, PlatformAccessory } from 'homebridge';
+import { Service } from 'homebridge';
 import { HKSensor } from './HKSensor';
 import { QolsysZoneStatus} from './QolsysZone';
 import { HKSensorType, HBQolsysPanel } from './platform';
 
 export class HKLeakSensor extends HKSensor {
 
+  private service: Service;
+
   constructor(
     protected readonly platform: HBQolsysPanel,
-    protected readonly accessory: PlatformAccessory,
-    readonly ZoneId: number,
+    protected ZoneId: number,
+    protected readonly Name:string,
+    protected readonly UUID,
   ) {
 
-    super(platform, accessory, ZoneId, HKSensorType.MotionSensor);
+    super(platform, ZoneId, HKSensorType.LeakSensor, Name, UUID);
 
     // set accessory information
-    this.accessory.getService(this.platform.Service.AccessoryInformation)!
-      .setCharacteristic(this.platform.Characteristic.Manufacturer, 'Qolsys Panel')
+    this.Accessory.getService(this.platform.Service.AccessoryInformation)!
       .setCharacteristic(this.platform.Characteristic.Model, 'HK Leak Sensor')
       .setCharacteristic(this.platform.Characteristic.SerialNumber, 'QolsysZone' + ZoneId);
 
-    this.service.setCharacteristic(this.platform.Characteristic.Name, accessory.displayName);
-  }
-
-  GetService():Service{
-    return this.accessory.getService(this.platform.Service.LeakSensor)
-    || this.accessory.addService(this.platform.Service.LeakSensor);
+    this.service = this.Accessory.getService(this.platform.Service.LeakSensor)
+    || this.Accessory.addService(this.platform.Service.LeakSensor);
   }
 
   HandleEventDetected(ZoneStatus: QolsysZoneStatus){

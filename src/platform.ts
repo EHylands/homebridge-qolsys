@@ -4,19 +4,21 @@ import { QolsysController, QolsysControllerError } from './QolsysController';
 import { QolsysZone, QolsysZoneStatus, QolsysZoneType} from './QolsysZone';
 import { QolsysAlarmMode} from './QolsysPartition';
 import { HKSecurityPanel } from './HKSecurityPanel';
-import { HKMotionSensor } from './HKMotionSensor';
 import { HKContactSensor } from './HKContactSensor';
 import { HKLeakSensor } from './HKLeakSensor';
 import { HKSmokeSensor } from './HKSmokeSensor';
 import { HKCOSensor } from './HKCOSensor';
 import { HKSensor } from './HKSensor';
+import { HKMotionOccupancySensor } from './HKMotionOccupancySensor';
 
 export enum HKSensorType {
   MotionSensor = 'MotionSensor',
   ContactSensor = 'ContactSensor',
   LeakSensor = 'LeakSensor',
   SmokeSensor = 'SmokeSensor',
-  COSensor = 'COSensor'
+  COSensor = 'COSensor',
+  OccupancySensor = 'OccupancySensor',
+  MotionOccupancySensor = 'MotionOccupancySensor'
 }
 
 export class HBQolsysPanel implements DynamicPlatformPlugin {
@@ -49,12 +51,15 @@ export class HBQolsysPanel implements DynamicPlatformPlugin {
   private LogPartition = true;
   private LogZone = false;
   private LogDebug = false;
-
   ForceArm = true;
   AwayExitDelay = 120;
   HomeExitDelay = 120;
-  SensorDelay = false;
+  SensorDelay = true;
 
+  // Motion Occupancy sensors options
+  MotionDelay = 5;
+  OccupancyDelay = 15;
+  MotionSensorMode = 'Motion';
 
   constructor(
     public readonly log: Logger,
@@ -176,6 +181,18 @@ export class HBQolsysPanel implements DynamicPlatformPlugin {
       this.SensorDelay = this.config.SensorDelay;
     }
 
+    if(this.config.OccupancyDelay !== undefined){
+      this.OccupancyDelay = this.config.OccupancyDelay;
+    }
+
+    if(this.config.MotionDelay !== undefined){
+      this.MotionDelay = this.config.MotionDelay;
+    }
+
+    if(this.config.MotionSensorMode !== undefined){
+      this.MotionSensorMode = this.config.MotionSensorMode;
+    }
+
     this.PanelHost = Host;
     this.PanelPort = Port;
     this.PanelSecureToken = SecureToken;
@@ -184,55 +201,32 @@ export class HBQolsysPanel implements DynamicPlatformPlugin {
     return true;
   }
 
-  private DeviceCacheCleanUp(){
-    // Do some cleanup of point that have been restored and are not in config file anymore
-    for(let i = 0; i < this.accessories.length;i++){
-      if(this.CreatedAccessories.indexOf(this.accessories[i]) === -1){
-        this.api.unregisterPlatformAccessories(PLUGIN_NAME, PLATFORM_NAME, [this.accessories[i]]);
-      }
-    }
-  }
-
   private DiscoverPartitions(){
-
     for(const PartitionId in this.Controller.GetPartitions()){
+
       const Partition = this.Controller.GetPartitions()[PartitionId];
-      const uuid = this.api.hap.uuid.generate('QolsysPartition' + Partition.PartitionId);
-      const existingAccessory = this.accessories.find(accessory => accessory.UUID === uuid);
 
       if(!this.ShowSecurityPanel){
         this.log.info('Partition' + Partition.PartitionId + ': Skipped in config file');
         continue;
       }
 
-      if (existingAccessory) {
-        new HKSecurityPanel(this, existingAccessory, Partition.PartitionId);
-        this.CreatedAccessories.push(existingAccessory);
-      } else{
-        const accessory = new this.api.platformAccessory(Partition.PartitionName, uuid);
-        new HKSecurityPanel(this, accessory, Partition.PartitionId);
-        this.CreatedAccessories.push(accessory);
-        this.api.registerPlatformAccessories(PLUGIN_NAME, PLATFORM_NAME, [accessory]);
-      }
+      new HKSecurityPanel(this, Partition.PartitionId, Partition.PartitionName, 'QolsysPartition' + Partition.PartitionId);
     }
   }
 
   private DiscoverZones(){
     for(const ZoneId in this.Controller.GetZones()){
       const Zone = this.Controller.GetZones()[ZoneId];
-      const uuid = this.api.hap.uuid.generate('QolsysZone' + Zone.ZoneType + Zone.ZoneId);
-      const existingAccessory = this.accessories.find(accessory => accessory.UUID === uuid);
+      this.CreateSensor(Zone);
+    }
+  }
 
-      if (existingAccessory) {
-        if(this.CreateSensor(existingAccessory, Zone)){
-          this.CreatedAccessories.push(existingAccessory);
-        }
-      } else{
-        const accessory = new this.api.platformAccessory(Zone.ZoneName, uuid);
-        if(this.CreateSensor(accessory, Zone)){
-          this.CreatedAccessories.push(accessory);
-          this.api.registerPlatformAccessories(PLUGIN_NAME, PLATFORM_NAME, [accessory]);
-        }
+  private DeviceCacheCleanUp(){
+    // Do some cleanup of point that have been restored and are not in config file anymore
+    for(let i = 0; i < this.accessories.length;i++){
+      if(this.CreatedAccessories.indexOf(this.accessories[i]) === -1){
+        this.api.unregisterPlatformAccessories(PLUGIN_NAME, PLATFORM_NAME, [this.accessories[i]]);
       }
     }
   }
@@ -316,14 +310,30 @@ export class HBQolsysPanel implements DynamicPlatformPlugin {
     this.Controller.Connect();
   }
 
-  private CreateSensor(Accessory: PlatformAccessory, Zone:QolsysZone):boolean{
+  private CreateSensor(Zone:QolsysZone):boolean{
 
     switch(Zone.ZoneType){
 
       case QolsysZoneType.Motion:{
         if(this.ShowMotion){
-          this.Zones[Zone.ZoneId] = new HKMotionSensor(this, Accessory, Zone.ZoneId);
+
+          if(this.MotionSensorMode === 'Motion'){
+            this.Zones[Zone.ZoneId] = new HKMotionOccupancySensor(this, Zone.ZoneId, Zone.ZoneName,
+              'QolsysZone' + Zone.ZoneType + Zone.ZoneId + 'MotionOccupancy', true, false);
+          }
+
+          if(this.MotionSensorMode === 'Occupancy'){
+            this.Zones[Zone.ZoneId] = new HKMotionOccupancySensor(this, Zone.ZoneId, Zone.ZoneName,
+              'QolsysZone' + Zone.ZoneType + Zone.ZoneId + 'MotionOccupancy', false, true);
+          }
+
+          if(this.MotionSensorMode === 'MotionOccupancy'){
+            this.Zones[Zone.ZoneId] = new HKMotionOccupancySensor(this, Zone.ZoneId, Zone.ZoneName,
+              'QolsysZone' + Zone.ZoneType + Zone.ZoneId + 'MotionOccupancy', true, true);
+          }
+
           return true;
+
         } else{
           this.log.info('Zone' + Zone.ZoneId + ': Skipped in config file - ' + QolsysZoneType[Zone.ZoneType]);
           return false;
@@ -332,8 +342,25 @@ export class HBQolsysPanel implements DynamicPlatformPlugin {
 
       case QolsysZoneType.PanelMotion:{
         if(this.ShowMotion){
-          this.Zones[Zone.ZoneId] = new HKMotionSensor(this, Accessory, Zone.ZoneId);
+
+          if(this.MotionSensorMode === 'Motion'){
+            this.Zones[Zone.ZoneId] = new HKMotionOccupancySensor(this, Zone.ZoneId, Zone.ZoneName,
+              'QolsysZone' + Zone.ZoneType + Zone.ZoneId, true, false);
+          }
+
+          if(this.MotionSensorMode === 'Occupancy'){
+            this.Zones[Zone.ZoneId] = new HKMotionOccupancySensor(this, Zone.ZoneId, Zone.ZoneName,
+              'QolsysZone' + Zone.ZoneType + Zone.ZoneId, false, true);
+          }
+
+          if(this.MotionSensorMode === 'MotionOccupancy'){
+            this.Zones[Zone.ZoneId] = new HKMotionOccupancySensor(this, Zone.ZoneId, Zone.ZoneName,
+              'QolsysZone' + Zone.ZoneType + Zone.ZoneId, true, true);
+          }
+
+
           return true;
+
         } else{
           this.log.info('Zone' + Zone.ZoneId + ': Skipped in config file - ' + QolsysZoneType[Zone.ZoneType]);
           return false;
@@ -342,7 +369,7 @@ export class HBQolsysPanel implements DynamicPlatformPlugin {
 
       case QolsysZoneType.DoorWindow:{
         if(this.ShowContact){
-          this.Zones[Zone.ZoneId] = new HKContactSensor(this, Accessory, Zone.ZoneId);
+          this.Zones[Zone.ZoneId] = new HKContactSensor(this, Zone.ZoneId, Zone.ZoneName, 'QolsysZone' + Zone.ZoneType + Zone.ZoneId);
           return true;
         } else{
           this.log.info('Zone' + Zone.ZoneId + ': Skipped in config file - ' + QolsysZoneType[Zone.ZoneType]);
@@ -352,7 +379,7 @@ export class HBQolsysPanel implements DynamicPlatformPlugin {
 
       case QolsysZoneType.Water :{
         if(this.ShowLeak){
-          this.Zones[Zone.ZoneId] = new HKLeakSensor(this, Accessory, Zone.ZoneId);
+          this.Zones[Zone.ZoneId] = new HKLeakSensor(this, Zone.ZoneId, Zone.ZoneName, 'QolsysZone' + Zone.ZoneType + Zone.ZoneId);
           return true;
         } else{
           this.log.info('Zone' + Zone.ZoneId + ': Skipped in config file - ' + QolsysZoneType[Zone.ZoneType]);
@@ -362,7 +389,7 @@ export class HBQolsysPanel implements DynamicPlatformPlugin {
 
       case QolsysZoneType.SmokeDetector :{
         if(this.ShowSmoke){
-          this.Zones[Zone.ZoneId] = new HKSmokeSensor(this, Accessory, Zone.ZoneId);
+          this.Zones[Zone.ZoneId] = new HKSmokeSensor(this, Zone.ZoneId, Zone.ZoneName, 'QolsysZone' + Zone.ZoneType + Zone.ZoneId);
           return true;
         } else{
           this.log.info('Zone' + Zone.ZoneId + ': Skipped in config file - ' + QolsysZoneType[Zone.ZoneType]);
@@ -372,7 +399,7 @@ export class HBQolsysPanel implements DynamicPlatformPlugin {
 
       case QolsysZoneType.CODetector :{
         if(this.ShowCO){
-          this.Zones[Zone.ZoneId] = new HKCOSensor(this, Accessory, Zone.ZoneId);
+          this.Zones[Zone.ZoneId] = new HKCOSensor(this, Zone.ZoneId, Zone.ZoneName, 'QolsysZone' + Zone.ZoneType + Zone.ZoneId);
           return true;
         } else{
           this.log.info('Zone' + Zone.ZoneId + ': Skipped in config file - ' + QolsysZoneType[Zone.ZoneType]);
@@ -382,7 +409,7 @@ export class HBQolsysPanel implements DynamicPlatformPlugin {
 
       case QolsysZoneType.Bluetooth :{
         if(this.ShowBluetooth){
-          this.Zones[Zone.ZoneId] = new HKContactSensor(this, Accessory, Zone.ZoneId);
+          this.Zones[Zone.ZoneId] = new HKContactSensor(this, Zone.ZoneId, Zone.ZoneName, 'QolsysZone' + Zone.ZoneType + Zone.ZoneId);
           return true;
         } else{
           this.log.info('Zone' + Zone.ZoneId + ': Skipped in config file - ' + QolsysZoneType[Zone.ZoneType]);
@@ -392,7 +419,7 @@ export class HBQolsysPanel implements DynamicPlatformPlugin {
 
       case QolsysZoneType.GlassBreak :{
         if(this.ShowGlassBreak){
-          this.Zones[Zone.ZoneId] = new HKContactSensor(this, Accessory, Zone.ZoneId);
+          this.Zones[Zone.ZoneId] = new HKContactSensor(this, Zone.ZoneId, Zone.ZoneName, 'QolsysZone' + Zone.ZoneType + Zone.ZoneId);
           return true;
         } else{
           this.log.info('Zone' + Zone.ZoneId + ': Skipped in config file - ' + QolsysZoneType[Zone.ZoneType]);
@@ -402,7 +429,7 @@ export class HBQolsysPanel implements DynamicPlatformPlugin {
 
       case QolsysZoneType.PanelGlassBreak :{
         if(this.ShowGlassBreak){
-          this.Zones[Zone.ZoneId] = new HKContactSensor(this, Accessory, Zone.ZoneId);
+          this.Zones[Zone.ZoneId] = new HKContactSensor(this, Zone.ZoneId, Zone.ZoneName, 'QolsysZone' + Zone.ZoneType + Zone.ZoneId);
           return true;
         } else{
           this.log.info('Zone' + Zone.ZoneId + ': Skipped in config file - ' + QolsysZoneType[Zone.ZoneType]);
@@ -412,7 +439,7 @@ export class HBQolsysPanel implements DynamicPlatformPlugin {
 
       case QolsysZoneType.TakeoverModule :{
         if(this.ShowTakeover){
-          this.Zones[Zone.ZoneId] = new HKContactSensor(this, Accessory, Zone.ZoneId);
+          this.Zones[Zone.ZoneId] = new HKContactSensor(this, Zone.ZoneId, Zone.ZoneName, 'QolsysZone' + Zone.ZoneType + Zone.ZoneId);
           return true;
         } else{
           this.log.info('Zone' + Zone.ZoneId + ': Skipped in config file - ' + QolsysZoneType[Zone.ZoneType]);
@@ -422,7 +449,7 @@ export class HBQolsysPanel implements DynamicPlatformPlugin {
 
       case QolsysZoneType.Tilt :{
         if(this.ShowTilt){
-          this.Zones[Zone.ZoneId] = new HKContactSensor(this, Accessory, Zone.ZoneId);
+          this.Zones[Zone.ZoneId] = new HKContactSensor(this, Zone.ZoneId, Zone.ZoneName, 'QolsysZone' + Zone.ZoneType + Zone.ZoneId);
           return true;
         } else{
           this.log.info('Zone' + Zone.ZoneId + ': Skipped in config file - ' + QolsysZoneType[Zone.ZoneType]);

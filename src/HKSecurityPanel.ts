@@ -1,26 +1,29 @@
-import { Service, PlatformAccessory} from 'homebridge';
+import { Service} from 'homebridge';
 import { QolsysAlarmMode} from './QolsysPartition';
 import { HBQolsysPanel } from './platform';
+import { HKAccessory } from './HKAccessory';
 
-export class HKSecurityPanel {
+export class HKSecurityPanel extends HKAccessory {
   private service: Service;
 
   constructor(
-    private readonly platform: HBQolsysPanel,
-    private readonly accessory: PlatformAccessory,
-    private readonly PartitionId: number,
+    protected readonly platform: HBQolsysPanel,
+    protected PartitionId: number,
+    protected readonly Name:string,
+    protected readonly UUID,
   ) {
 
-    this.platform.log.info('Partition' + this.PartitionId + '(Security System): ' + accessory.displayName);
+    super(platform, Name, UUID);
 
-    this.accessory.getService(this.platform.Service.AccessoryInformation)!
-      .setCharacteristic(this.platform.Characteristic.Manufacturer, 'Qolsys')
+    this.platform.log.info('Partition' + this.PartitionId + '(Security System): ' + this.Accessory.displayName);
+
+    this.Accessory.getService(this.platform.Service.AccessoryInformation)!
       .setCharacteristic(this.platform.Characteristic.Model, 'Qolsys IQ Panel')
       .setCharacteristic(this.platform.Characteristic.SerialNumber, 'QolsysPanel' + this.PartitionId)
-      .setCharacteristic(this.platform.Characteristic.Name, accessory.displayName);
+      .setCharacteristic(this.platform.Characteristic.Name, this.Accessory.displayName);
 
-    this.service = this.accessory.getService(this.platform.Service.SecuritySystem)
-    || this.accessory.addService(this.platform.Service.SecuritySystem);
+    this.service = this.Accessory.getService(this.platform.Service.SecuritySystem)
+    || this.Accessory.addService(this.platform.Service.SecuritySystem);
 
     const ValidCurrentStates = [
       this.platform.api.hap.Characteristic.SecuritySystemCurrentState.STAY_ARM,

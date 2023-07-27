@@ -447,7 +447,6 @@ export class QolsysController extends TypedEmitter<QolsysControllerEvent> {
     }
 
     private ProcessSummary(Payload:PayloadJSON){
-
       for( const PartitionId in Payload.partition_list){
         const part = Payload.partition_list[PartitionId];
         const Id = Number(part.partition_id);
