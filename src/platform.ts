@@ -59,7 +59,7 @@ export class HBQolsysPanel implements DynamicPlatformPlugin {
   // Motion Occupancy sensors options
   MotionDelay = 5;
   OccupancyDelay = 15;
-  MotionSensorMode = 'MotionOnly';
+  MotionSensorMode = 'Motion';
 
   constructor(
     public readonly log: Logger,
