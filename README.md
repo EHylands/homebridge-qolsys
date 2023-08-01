@@ -88,6 +88,15 @@ Note: Once Control 4 is enabled you have 15 minutes to view the access token, co
 | Away | Arm Away, Exit Delay in config file
 | Home | Arm Stay, Exit Delay in config file
 
+### Tips
+There are few helpful things to be aware of in reguard to how HomeKit currenlty (iOS 16.0) represents security sensors.
+If a room only contains sensors, and no controllable devices, it won't display the room in the Home View. This includes the Default room created for newly added devices after initial bridge enrollment. Such rooms are still selectable from the list of rooms to view. The summary of all sensors status will still display when the Security category is selected in Home View.
+
+If you add sensors after the initial enrollment of the hub they will all be added to the Default room. For this reason it is generally a good idea to either add the HomeBridge to HomeKit after configuration of the plugin OR run the plugin as a chiled bridge and add it to HomeKit after you have confirmed proper configuration. The advantage of this approach is that when the bridge is added after the plugin is configured, HomeKit will present dialogs for each sensor allowing correct placement in each room as well as display icon. While tedious this approach is also a simpler process to make sure each sensor is assigned to the correct room. If you don't follow this approach or add sensors later, they will be added to the Default room with default icon representation. The easist way to find any errant sensors is "Home Settings" -> "Home Hubs & Bridges" -> select either Homebridge or the Qolsys child bridge -> Accessories, this provides a view of all sensors that are directly part of the bridge.
+
+Flood sensors currently (iOS 16.0) have behavior distinct from other security sensors. When a flood sensor is enrolled, a new Summary Group for Water will be displayed in the Home View. If selected the summary view will _not_ display any information or the existance of the flood sensors. Currently the handling of such sensors seems optimized for systems that also include shutoff valves, but not for security flood sensors. (TBD testing/documentation of the behavior of triggered security flood sensors including flood alarm).
+
+
 ## Credits
 - @andrewfblack, @CodyRWhite, @ifeign and @siglumous for beta testing initial plugin versions!
 - [Home Assistant support thread](https://community.home-assistant.io/t/qolsys-iq-panel-2-and-3rd-party-integration/231405)
