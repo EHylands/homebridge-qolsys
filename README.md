@@ -78,7 +78,7 @@ Once enabled all existing codes will have 00 appended.
 - 3rd Party Connections
 - Select Reveal Secure Token field
 
-Note: Once Control 4 is enabled you have 15 minutes to view the access token, configure the plugin, and have it make it's initial connection to the panel. If no connection is made in this time the panel will disable the Control 4 integration and reboot. (This behaviore may be firmware dependent)
+**Note:** Once Control 4 is enabled you have 15 minutes to view the access token, configure the plugin, and have it make it's initial connection to the panel. If no connection is made in this time the panel will disable the Control 4 integration and reboot. (This behaviore may be firmware dependent)
 
 ## Plugin Operation
 ### HomeKit Security System Accessory:
