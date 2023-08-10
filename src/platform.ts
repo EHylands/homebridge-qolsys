@@ -141,16 +141,8 @@ export class HBQolsysPanel implements DynamicPlatformPlugin {
       this.ShowTilt = this.config.ShowTilt;
     }
 
-    if(this.config.ShowBluetooth !== undefined){
-      this.ShowBluetooth = this.config.ShowBluetooth;
-    }
-
     if(this.config.ShowGlassBreak !== undefined){
       this.ShowGlassBreak = this.config.ShowGlassBreak;
-    }
-
-    if(this.config.ShowTakeover !== undefined){
-      this.ShowTakeover = this.config.ShowTakeover;
     }
 
     if(this.config.LogPartition !== undefined){
@@ -408,7 +400,7 @@ export class HBQolsysPanel implements DynamicPlatformPlugin {
           this.Zones[Zone.ZoneId] = new HKContactSensor(this, Zone.ZoneId, Zone.ZoneName, 'QolsysZone' + Zone.ZoneType + Zone.ZoneId);
           return true;
         } else{
-          this.log.info('Zone' + Zone.ZoneId + ': Skipped in config file - ' + QolsysZoneType[Zone.ZoneType]);
+          this.log.info('Zone' + Zone.ZoneId + ': No HomeKit plugin available - ' + QolsysZoneType[Zone.ZoneType]);
           return false;
         }
       }
@@ -438,7 +430,7 @@ export class HBQolsysPanel implements DynamicPlatformPlugin {
           this.Zones[Zone.ZoneId] = new HKContactSensor(this, Zone.ZoneId, Zone.ZoneName, 'QolsysZone' + Zone.ZoneType + Zone.ZoneId);
           return true;
         } else{
-          this.log.info('Zone' + Zone.ZoneId + ': Skipped in config file - ' + QolsysZoneType[Zone.ZoneType]);
+          this.log.info('Zone' + Zone.ZoneId + ': No HomeKit plugin available - ' + QolsysZoneType[Zone.ZoneType]);
           return false;
         }
       }

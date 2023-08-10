@@ -96,19 +96,9 @@
         "title": "Show Tilt Sensors",
         "default": true
       },
-      "ShowBluetooth":{
-        "type": "boolean",
-        "title": "Show Bluetooth Sensors",
-        "default": false
-      },
       "ShowGlassBreak":{
         "type": "boolean",
         "title": "Show Glass Break Sensors",
-        "default": false
-      },
-      "ShowTakeover":{
-        "type": "boolean",
-        "title": "Show Takeover Module Tamper Sensors",
         "default": false
       },
       "LogPartition":{
@@ -223,9 +213,7 @@
             "ShowCO",
             "ShowLeak",
             "ShowTilt",
-            "ShowBluetooth",
-            "ShowGlassBreak",
-            "ShowTakeover"
+            "ShowGlassBreak"
           ]
         },
         {
