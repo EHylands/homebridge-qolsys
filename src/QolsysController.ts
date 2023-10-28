@@ -272,6 +272,10 @@ export class QolsysController extends TypedEmitter<QolsysControllerEvent> {
                   this.ProcessAlarm(Payload.partition_id, QolsysAlarmMode.ALARM_POLICE);
                   break;
 
+                case '':
+                  this.ProcessAlarm(Payload.partition_id, QolsysAlarmMode.ALARM_POLICE);
+                  break;
+
                 case 'FIRE':
                   this.ProcessAlarm(Payload.partition_id, QolsysAlarmMode.ALARM_FIRE);
                   break;
