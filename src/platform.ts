@@ -43,6 +43,7 @@ export class HBQolsysPanel implements DynamicPlatformPlugin {
   private ShowContact = true;
   private ShowCO = true;
   private ShowSmoke = true;
+  private ShowHeat = true;
   private ShowLeak = true;
   private ShowTilt = true;
   private ShowBluetooth = false;
@@ -131,6 +132,10 @@ export class HBQolsysPanel implements DynamicPlatformPlugin {
 
     if(this.config.ShowSmoke !== undefined){
       this.ShowSmoke = this.config.ShowSmoke;
+    }
+
+    if(this.config.ShowHeat !== undefined){
+      this.ShowHeat = this.config.ShowHeat;
     }
 
     if(this.config.ShowLeak !== undefined){
@@ -377,6 +382,16 @@ export class HBQolsysPanel implements DynamicPlatformPlugin {
 
       case QolsysZoneType.SmokeDetector :{
         if(this.ShowSmoke){
+          this.Zones[Zone.ZoneId] = new HKSmokeSensor(this, Zone.ZoneId, Zone.ZoneName, 'QolsysZone' + Zone.ZoneType + Zone.ZoneId);
+          return true;
+        } else{
+          this.log.info('Zone' + Zone.ZoneId + ': Skipped in config file - ' + QolsysZoneType[Zone.ZoneType]);
+          return false;
+        }
+      }
+
+      case QolsysZoneType.Heat :{
+        if(this.ShowHeat){
           this.Zones[Zone.ZoneId] = new HKSmokeSensor(this, Zone.ZoneId, Zone.ZoneName, 'QolsysZone' + Zone.ZoneType + Zone.ZoneId);
           return true;
         } else{

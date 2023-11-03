@@ -19,6 +19,7 @@ export enum QolsysZoneType{
   Keypad,
   KeyFob,
   Tilt,
+  Heat,
   Unknow
 }
 
@@ -112,6 +113,10 @@ export class QolsysZone{
 
       case 'KeyFob':
         this.ZoneType = QolsysZoneType.KeyFob;
+        break;
+
+      case 'Heat':
+        this.ZoneType = QolsysZoneType.Heat;
         break;
 
       default:

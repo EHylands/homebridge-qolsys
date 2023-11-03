@@ -86,6 +86,11 @@
         "title": "Show Smoke Sensors",
         "default": true
       },
+      "ShowHeat":{
+        "type": "boolean",
+        "title": "Show Heat Sensors",
+        "default": true
+      },
       "ShowLeak":{
         "type": "boolean",
         "title": "Show Leak Sensors",
@@ -210,6 +215,7 @@
           "items": [
             "ShowContact",
             "ShowSmoke",
+            "ShowHeat",
             "ShowCO",
             "ShowLeak",
             "ShowTilt",
