@@ -28,11 +28,10 @@ This plugin only supports the IQ Panel basic security features:
 - Motion and Panel Motion
 - Door, Window, Tilt
 - Water
+- Heat
 - Smoke Detector
 - CO Detector
-- Bluetooth
 - Glass Break and Panel Glass Break
-- Takeover Module
 
 ## Homebride Pluging Configuration
 ### General Parameters
