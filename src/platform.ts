@@ -8,6 +8,7 @@ import { HKContactSensor } from './HKContactSensor';
 import { HKLeakSensor } from './HKLeakSensor';
 import { HKSmokeSensor } from './HKSmokeSensor';
 import { HKCOSensor } from './HKCOSensor';
+import { HKDoorbellSensor } from './HKDoorbellSensor';
 import { HKSensor } from './HKSensor';
 import { HKMotionOccupancySensor } from './HKMotionOccupancySensor';
 
@@ -18,7 +19,8 @@ export enum HKSensorType {
   SmokeSensor = 'SmokeSensor',
   COSensor = 'COSensor',
   OccupancySensor = 'OccupancySensor',
-  MotionOccupancySensor = 'MotionOccupancySensor'
+  MotionOccupancySensor = 'MotionOccupancySensor',
+  DoorbellSensor = 'DoorbellSensor'
 }
 
 export class HBQolsysPanel implements DynamicPlatformPlugin {
@@ -46,6 +48,7 @@ export class HBQolsysPanel implements DynamicPlatformPlugin {
   private ShowHeat = true;
   private ShowLeak = true;
   private ShowTilt = true;
+  private ShowDoorbell = true;
   private ShowBluetooth = false;
   private ShowGlassBreak = false;
   private ShowTakeover = false;
@@ -148,6 +151,10 @@ export class HBQolsysPanel implements DynamicPlatformPlugin {
 
     if(this.config.ShowGlassBreak !== undefined){
       this.ShowGlassBreak = this.config.ShowGlassBreak;
+    }
+
+    if(this.config.ShowDoorbell !== undefined){
+      this.ShowDoorbell = this.config.ShowDoorbell;
     }
 
     if(this.config.LogPartition !== undefined){
@@ -308,6 +315,7 @@ export class HBQolsysPanel implements DynamicPlatformPlugin {
     switch(Zone.ZoneType){
 
       case QolsysZoneType.Motion:{
+
         if(this.ShowMotion){
 
           if(this.MotionSensorMode === 'Motion'){
@@ -350,7 +358,6 @@ export class HBQolsysPanel implements DynamicPlatformPlugin {
             this.Zones[Zone.ZoneId] = new HKMotionOccupancySensor(this, Zone.ZoneId, Zone.ZoneName,
               'QolsysZone' + Zone.ZoneType + Zone.ZoneId, true, true);
           }
-
 
           return true;
 
@@ -453,6 +460,16 @@ export class HBQolsysPanel implements DynamicPlatformPlugin {
       case QolsysZoneType.Tilt :{
         if(this.ShowTilt){
           this.Zones[Zone.ZoneId] = new HKContactSensor(this, Zone.ZoneId, Zone.ZoneName, 'QolsysZone' + Zone.ZoneType + Zone.ZoneId);
+          return true;
+        } else{
+          this.log.info('Zone' + Zone.ZoneId + ': Skipped in config file - ' + QolsysZoneType[Zone.ZoneType]);
+          return false;
+        }
+      }
+
+      case QolsysZoneType.Doorbell:{
+        if(this.ShowDoorbell){
+          this.Zones[Zone.ZoneId] = new HKDoorbellSensor(this, Zone.ZoneId, Zone.ZoneName, 'QolsysZone' + Zone.ZoneType + Zone.ZoneId);
           return true;
         } else{
           this.log.info('Zone' + Zone.ZoneId + ': Skipped in config file - ' + QolsysZoneType[Zone.ZoneType]);
