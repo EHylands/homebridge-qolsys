@@ -52,6 +52,7 @@ export class QolsysZone{
       this.ZoneStatus = Status;
       return true;
     }
+
     return false;
   }
 

@@ -108,7 +108,7 @@
       },
       "ShowDoorbell":{
         "type": "boolean",
-        "title": "Use Doorbell sensor",
+        "title": "Show Doorbell sensor",
         "default": true
       },
       "LogPartition":{
