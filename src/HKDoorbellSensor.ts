@@ -28,7 +28,6 @@ export class HKDoorbellSensor extends HKSensor {
     this.ProgrammableSwitchService = this.Accessory.getService(this.platform.Service.StatelessProgrammableSwitch)
      || this.Accessory.addService(this.platform.Service.StatelessProgrammableSwitch);
 
-
     // Hide long and double press events by setting max value
     this.ProgrammableSwitchService
       .getCharacteristic(this.platform.Characteristic.ProgrammableSwitchEvent)

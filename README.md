@@ -32,6 +32,7 @@ This plugin only supports the IQ Panel basic security features:
 - Smoke Detector
 - CO Detector
 - Glass Break and Panel Glass Break
+- IQ Doorbell sensor
 
 ## Homebride Pluging Configuration
 ### General Parameters

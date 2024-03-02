@@ -61,6 +61,7 @@ export class QolsysZone{
       case 'Door_Window':
         this.ZoneType = QolsysZoneType.DoorWindow;
         break;
+
       case 'GlassBreak':
         this.ZoneType = QolsysZoneType.GlassBreak;
         break;
