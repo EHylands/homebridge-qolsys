@@ -49,6 +49,7 @@ export class HBQolsysPanel implements DynamicPlatformPlugin {
   private ShowLeak = true;
   private ShowTilt = true;
   private ShowDoorbell = true;
+  private ShowFreeze = true;
   private ShowBluetooth = false;
   private ShowGlassBreak = false;
   private ShowTakeover = false;
@@ -155,6 +156,10 @@ export class HBQolsysPanel implements DynamicPlatformPlugin {
 
     if(this.config.ShowDoorbell !== undefined){
       this.ShowDoorbell = this.config.ShowDoorbell;
+    }
+
+    if(this.config.ShowFreeze !== undefined){
+      this.ShowFreeze = this.config.ShowFreeze;
     }
 
     if(this.config.LogPartition !== undefined){
@@ -470,6 +475,16 @@ export class HBQolsysPanel implements DynamicPlatformPlugin {
       case QolsysZoneType.Doorbell:{
         if(this.ShowDoorbell){
           this.Zones[Zone.ZoneId] = new HKDoorbellSensor(this, Zone.ZoneId, Zone.ZoneName, 'QolsysZone' + Zone.ZoneType + Zone.ZoneId);
+          return true;
+        } else{
+          this.log.info('Zone' + Zone.ZoneId + ': Skipped in config file - ' + QolsysZoneType[Zone.ZoneType]);
+          return false;
+        }
+      }
+
+      case QolsysZoneType.Freeze :{
+        if(this.ShowFreeze){
+          this.Zones[Zone.ZoneId] = new HKContactSensor(this, Zone.ZoneId, Zone.ZoneName, 'QolsysZone' + Zone.ZoneType + Zone.ZoneId);
           return true;
         } else{
           this.log.info('Zone' + Zone.ZoneId + ': Skipped in config file - ' + QolsysZoneType[Zone.ZoneType]);
