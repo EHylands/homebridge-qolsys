@@ -20,6 +20,7 @@ export enum QolsysZoneType{
   KeyFob,
   Tilt,
   Heat,
+  Doorbell,
   Unknow
 }
 
@@ -51,6 +52,7 @@ export class QolsysZone{
       this.ZoneStatus = Status;
       return true;
     }
+
     return false;
   }
 
@@ -59,6 +61,7 @@ export class QolsysZone{
       case 'Door_Window':
         this.ZoneType = QolsysZoneType.DoorWindow;
         break;
+
       case 'GlassBreak':
         this.ZoneType = QolsysZoneType.GlassBreak;
         break;
@@ -117,6 +120,10 @@ export class QolsysZone{
 
       case 'Heat':
         this.ZoneType = QolsysZoneType.Heat;
+        break;
+
+      case 'Doorbell':
+        this.ZoneType = QolsysZoneType.Doorbell;
         break;
 
       default:
