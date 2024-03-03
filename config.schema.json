@@ -111,6 +111,11 @@
         "title": "Show Doorbell sensor",
         "default": true
       },
+      "ShowFreeze":{
+        "type": "boolean",
+        "title": "Show Freeze sensor",
+        "default": true
+      },
       "LogPartition":{
         "type": "boolean",
         "title": "Show Partitions notifications",
@@ -225,7 +230,8 @@
             "ShowLeak",
             "ShowTilt",
             "ShowGlassBreak",
-            "ShowDoorbell"
+            "ShowDoorbell",
+            "ShowFreeze"
           ]
         },
         {

@@ -28,7 +28,7 @@ This plugin only supports the IQ Panel basic security features:
 - Motion and Panel Motion
 - Door, Window, Tilt
 - Water
-- Heat
+- Heat, Freeze
 - Smoke Detector
 - CO Detector
 - Glass Break and Panel Glass Break
