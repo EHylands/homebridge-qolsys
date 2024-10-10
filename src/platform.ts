@@ -216,7 +216,8 @@ export class HBQolsysPanel implements DynamicPlatformPlugin {
         continue;
       }
 
-      new HKSecurityPanel(this, Partition.PartitionId, Partition.PartitionName, 'QolsysPartition' + Partition.PartitionId);
+      new HKSecurityPanel(this, Partition.PartitionId, Partition.PartitionName, 'QolsysPartition' + Partition.PartitionId,
+        Partition.NightModeEnabled);
     }
   }
 
@@ -512,7 +513,7 @@ export class HBQolsysPanel implements DynamicPlatformPlugin {
       for(const ZoneId in this.Controller.GetZones()){
         const Zone = this.Controller.GetZones()[ZoneId];
         if(Zone.PartitionId === Partition.PartitionId){
-          this.log.info('  Zone' + Zone.ZoneId + ': ' + Zone.ZoneName);
+          this.log.info('Zone' + Zone.ZoneId + ': ' + Zone.ZoneName);
         }
       }
     }

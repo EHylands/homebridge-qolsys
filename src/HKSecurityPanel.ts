@@ -11,11 +11,13 @@ export class HKSecurityPanel extends HKAccessory {
     protected PartitionId: number,
     protected readonly Name:string,
     protected readonly UUID,
+    protected readonly NightModeEnabled:boolean,
   ) {
 
     super(platform, Name, UUID);
 
     this.platform.log.info('Partition' + this.PartitionId + '(Security System): ' + this.Accessory.displayName);
+    this.platform.log.debug(' - NightModeEnabled: ' + NightModeEnabled);
 
     this.Accessory.getService(this.platform.Service.AccessoryInformation)!
       .setCharacteristic(this.platform.Characteristic.Model, 'Qolsys IQ Panel')
@@ -37,6 +39,11 @@ export class HKSecurityPanel extends HKAccessory {
       this.platform.api.hap.Characteristic.SecuritySystemTargetState.AWAY_ARM,
       this.platform.api.hap.Characteristic.SecuritySystemTargetState.DISARM,
     ];
+
+    if(this.NightModeEnabled){
+      ValidCurrentStates.push(this.platform.api.hap.Characteristic.SecuritySystemCurrentState.NIGHT_ARM);
+      ValidTargetStates.push(this.platform.api.hap.Characteristic.SecuritySystemTargetState.NIGHT_ARM);
+    }
 
     this.service.getCharacteristic(this.platform.api.hap.Characteristic.SecuritySystemCurrentState)
       .setProps({ validValues: ValidCurrentStates});
@@ -68,6 +75,8 @@ export class HKSecurityPanel extends HKAccessory {
 
   handleSecuritySystemTargetStateSet(value) {
 
+    console.log('set');
+
     switch(value){
       case this.platform.Characteristic.SecuritySystemTargetState.DISARM:{
         this.platform.Controller.SendArmCommand(QolsysAlarmMode.DISARM, this.PartitionId, 0, true);
@@ -82,8 +91,9 @@ export class HKSecurityPanel extends HKAccessory {
       }
 
       case this.platform.Characteristic.SecuritySystemTargetState.NIGHT_ARM:{
+        const HomeExitDelay = this.platform.HomeExitDelay;
         const Bypass = this.platform.ForceArm;
-        this.platform.Controller.SendArmCommand(QolsysAlarmMode.ARM_STAY, this.PartitionId, 0, Bypass);
+        this.platform.Controller.SendArmCommand(QolsysAlarmMode.ARM_NIGHT, this.PartitionId, HomeExitDelay, Bypass);
         break;
       }
 
@@ -124,6 +134,9 @@ export class HKSecurityPanel extends HKAccessory {
       case QolsysAlarmMode.ARM_STAY:
         return this.platform.Characteristic.SecuritySystemCurrentState.STAY_ARM;
 
+      case QolsysAlarmMode.ARM_NIGHT:
+        return this.platform.Characteristic.SecuritySystemCurrentState.NIGHT_ARM;
+
       case QolsysAlarmMode.ALARM_AUXILIARY:
         return this.platform.Characteristic.SecuritySystemCurrentState.ALARM_TRIGGERED;
 
@@ -161,6 +174,9 @@ export class HKSecurityPanel extends HKAccessory {
 
       case QolsysAlarmMode.ARM_STAY:
         return this.platform.Characteristic.SecuritySystemTargetState.STAY_ARM;
+
+      case QolsysAlarmMode.ARM_NIGHT:
+        return this.platform.Characteristic.SecuritySystemTargetState.NIGHT_ARM;
 
       case QolsysAlarmMode.ALARM_AUXILIARY:
         return this.platform.Characteristic.SecuritySystemTargetState.DISARM;

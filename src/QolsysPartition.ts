@@ -6,6 +6,7 @@ export enum QolsysAlarmMode{
   EXIT_DELAY ='EXIT_DELAY',
   ARM_AWAY = 'ARM_AWAY',
   ARM_STAY = 'ARM_STAY',
+  ARM_NIGHT = 'ARM_NIGHT',
   ALARM_POLICE = 'ALARM_POLICE',
   ALARM_FIRE = 'ALARM_FIRE',
   ALARM_AUXILIARY = 'ALARM_AUXILIARY',
@@ -21,6 +22,7 @@ export class QolsysPartition{
     ExitDelay = 0;
     ErrorText = '';
     SecureArm = false;
+    NightModeEnabled = false;
 
     constructor(PartitionId: number){
       this.PartitionId = PartitionId;
@@ -60,6 +62,9 @@ export class QolsysPartition{
 
         case 'ARM_AWAY':
           return this.SetAlarmMode(QolsysAlarmMode.ARM_AWAY);
+
+        case 'ARM_NIGHT':
+          return this.SetAlarmMode(QolsysAlarmMode.ARM_NIGHT);
 
         case 'ALARM_POLICE':
           return this.SetAlarmMode(QolsysAlarmMode.ALARM_POLICE);

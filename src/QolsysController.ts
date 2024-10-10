@@ -259,6 +259,10 @@ export class QolsysController extends TypedEmitter<QolsysControllerEvent> {
                   this.ProcessArmingType(Payload.partition_id, QolsysAlarmMode.ARM_AWAY);
                   break;
 
+                case 'ARM_NIGHT':
+                  this.ProcessArmingType(Payload.partition_id, QolsysAlarmMode.ARM_NIGHT);
+                  break;
+
                 default:
                   this.emit('ControllerError', QolsysControllerError.InvalidArmingType, 'Received Invalid Arming Type:' + FormattedMessage);
                   break;
@@ -385,6 +389,16 @@ export class QolsysController extends TypedEmitter<QolsysControllerEvent> {
           }
           break;
 
+        case QolsysAlarmMode.ARM_NIGHT:
+          if(Partition.SecureArm){
+            SecureArmingJSON.arming_type = QolsysAlarmMode[ArmingType];
+            this.SendCommand(JSON.stringify(SecureArmingJSON));
+          } else{
+            ArmingJSON.arming_type = QolsysAlarmMode[ArmingType];
+            this.SendCommand(JSON.stringify(ArmingJSON));
+          }
+          break;
+
         default:
           this.emit('ControllerError', QolsysControllerError.InvalidArmingType,
             'Sending Invalid Arming Type:' + QolsysAlarmMode[ArmingType]);
@@ -478,6 +492,10 @@ export class QolsysController extends TypedEmitter<QolsysControllerEvent> {
           if(Zone === undefined){
             Zone = new QolsysZone(PayloadZone.zone_id);
             this.Zones[PayloadZone.zone_id] = Zone;
+
+            if(PayloadZone.group !== 'nightmotion'){
+              Partition.NightModeEnabled = true;
+            }
           }
 
           Zone.SetZoneType(PayloadZone.type);
