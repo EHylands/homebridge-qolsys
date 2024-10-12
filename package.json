@@ -1,7 +1,7 @@
 {
   "displayName": "Homebridge Qolsys Panel",
   "name": "homebridge-qolsys",
-  "version": "0.5.0",
+  "version": "0.5.1-beta.1",
   "description": "Homebridge plugin for Qolsys Panel.",
   "license": "MIT",
   "repository": {
@@ -12,8 +12,8 @@
     "url": "https://github.com/ehylands/homebridge-qolsys/issues"
   },
   "engines": {
-    "node": ">=14.0.0",
-    "homebridge": ">=1.3.0"
+    "homebridge": "^1.6.0 || ^2.0.0-beta.0",
+    "node": "^18.20.4 || ^20.15.1"
   },
   "main": "dist/index.js",
   "scripts": {
@@ -38,7 +38,7 @@
     "@typescript-eslint/eslint-plugin": "^4.16.1",
     "@typescript-eslint/parser": "^4.16.1",
     "eslint": "^7.21.0",
-    "homebridge": "^1.3.6",
+    "homebridge": "^2.0.0-beta.22",
     "minimist": ">=1.2.6",
     "nodemon": "^2.0.7",
     "rimraf": "^3.0.2",
