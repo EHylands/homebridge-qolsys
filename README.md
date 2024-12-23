@@ -97,6 +97,11 @@ Once Control 4 is enabled you have **10 minutes** to view the access token, conf
 | Away | Arm Away, Exit Delay in config file
 | Home | Arm Stay, Exit Delay in config file
 
+### Arming Limitations
+The Control4 interface on the IQ panels is intended as a local integration for Control4 remotes, as such this integration acts as a 'local' keypad. This means that when arming Away, by default, if no perimiter doors are opened the Auto Stay setting will trigger and the arming state will switch to Stay (Home). This setting can be disabled globally in the IQ panel, however disabling it increases the risk of triggereing alarms in the event Away is accidentaly selected while at home.
+
+The IQ panels don't support directly transitioning from one armed state to another, you must first Disarm(Off) before you can arm as Stay(Home) or Away. Presently the HomeKit interface doesn't block attempting this behavior.
+
 ### Tips
 There are few things to be aware of in reguard to how HomeKit currenlty (iOS 16.0) represents security sensors.
 If a room only contains sensors, and no controllable devices, it won't display the room in the Home View. This includes the Default room created for newly added devices after initial bridge enrollment. Such rooms are still selectable from the list of rooms to view. When viewing any specific room you can see its associated sensors. A summary of all currently triggered sensors will be displayed when the Security category is selected in Home View. Sensors that aren't triggered won't display in the summary, so if you have no activity the summary will be empty. This behaviour is different from the summarys for Lights or Speakers & TV, which will show devices independent of state.  When viwing the Security Summary, if multiple sensors of the same type are triggered selecting the sensor type will show a list of the triggered sensors. 
@@ -104,7 +109,6 @@ If a room only contains sensors, and no controllable devices, it won't display t
 If you add sensors after the initial enrollment of the hub they will be added to a room named Default. For this reason it is generally a good idea to either add the HomeBridge to HomeKit after configuration of the plugin OR run the plugin as a child bridge and add it to HomeKit after you have confirmed proper configuration. The advantage of this approach is that when the bridge is added after the plugin is configured, HomeKit will present dialogs for each sensor allowing correct placement in each room as well as selection of display icon. While tedious, this approach is a simpler process to assign sensors to the correct room. If you don't follow this approach or add sensors later, they will be added to the Default room with default icon representation. Sensors can be moved to a different room, and the representative icon change, from the Settings similar to any other HomeKit device. The easist way to find any errant sensors is "Home Settings" -> "Home Hubs & Bridges" -> select either Homebridge or the Qolsys child bridge -> Accessories, this provides a view of all sensors that are directly part of the bridge. 
 
 Flood sensors currently (iOS 16.0) have behavior distinct from other security sensors. When a flood sensor is enrolled, a new Summary Group for Water will be displayed in the Home View. Similar to Security Summary, when selected the summary view for water won't display any information about the flood sensors unless there is an active alert.
-
 
 ## Credits
 - @andrewfblack, @CodyRWhite, @ifeign and @siglumous for beta testing initial plugin versions!
