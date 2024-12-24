@@ -68,6 +68,11 @@ export class HKSecurityPanel extends HKAccessory {
 
   handleSecuritySystemTargetStateSet(value) {
 
+    const Partition = this.platform.Controller.GetPartitions()[this.PartitionId];
+    const AwayExitDelay = this.platform.AwayExitDelay;
+    const HomeExitDelay = this.platform.HomeExitDelay;
+    const Bypass = this.platform.ForceArm;
+
     switch(value){
       case this.platform.Characteristic.SecuritySystemTargetState.DISARM:{
         this.platform.Controller.SendArmCommand(QolsysAlarmMode.DISARM, this.PartitionId, 0, true);
@@ -75,8 +80,17 @@ export class HKSecurityPanel extends HKAccessory {
       }
 
       case this.platform.Characteristic.SecuritySystemTargetState.AWAY_ARM:{
-        const AwayExitDelay = this.platform.AwayExitDelay;
-        const Bypass = this.platform.ForceArm;
+
+        if(Partition.PartitionStatus === QolsysAlarmMode.ARM_STAY || Partition.PartitionStatus === QolsysAlarmMode.ARM_STAY_EXIT_DELAY ){
+          if(AwayExitDelay > 0){
+            setTimeout(() => {
+              this.service.getCharacteristic(this.platform.Characteristic.SecuritySystemTargetState)
+                .updateValue(this.platform.Characteristic.SecuritySystemTargetState.STAY_ARM);
+            }, 100);
+            return;
+          }
+        }
+
         this.platform.Controller.SendArmCommand(QolsysAlarmMode.ARM_AWAY, this.PartitionId, AwayExitDelay, Bypass);
         break;
       }
@@ -88,8 +102,17 @@ export class HKSecurityPanel extends HKAccessory {
       }
 
       case this.platform.Characteristic.SecuritySystemTargetState.STAY_ARM:{
-        const HomeExitDelay = this.platform.HomeExitDelay;
-        const Bypass = this.platform.ForceArm;
+
+        if(Partition.PartitionStatus === QolsysAlarmMode.ARM_AWAY || Partition.PartitionStatus === QolsysAlarmMode.ARM_AWAY_EXIT_DELAY ){
+          if(HomeExitDelay > 0){
+            setTimeout(() => {
+              this.service.getCharacteristic(this.platform.Characteristic.SecuritySystemTargetState)
+                .updateValue(this.platform.Characteristic.SecuritySystemTargetState.AWAY_ARM);
+            }, 100);
+            return;
+          }
+        }
+
         this.platform.Controller.SendArmCommand(QolsysAlarmMode.ARM_STAY, this.PartitionId, HomeExitDelay, Bypass);
         break;
       }
