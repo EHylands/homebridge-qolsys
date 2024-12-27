@@ -98,9 +98,12 @@ Once Control 4 is enabled you have **10 minutes** to view the access token, conf
 | Home | Arm Stay, Exit Delay in config file
 
 ### Arming Limitations
-The Control4 interface on the IQ panels is intended as a local integration for Control4 remotes, as such this integration acts as a 'local' keypad. This means that when arming Away, by default, if no perimiter doors are opened the Auto Stay setting will trigger and the arming state will switch to Stay (Home). This setting can be disabled globally in the IQ panel, however disabling it increases the risk of triggereing alarms in the event Away is accidentaly selected while at home.
+The Control4 interface on the IQ panels is intended as a local integration for Control4 remotes, as such this integration acts as a 'local' keypad. This means that when arming Away, by **default**, if no perimiter doors are opened the Auto Stay setting will trigger and the arming state will switch to Stay (Home). This setting can be disabled globally in the IQ panel, however disabling it increases the risk of triggereing alarms in the event Away is accidentaly selected while at home.
 
-The IQ panels don't support directly transitioning from one armed state to another, you must first Disarm(Off) before you can arm as Stay(Home) or Away. Presently the HomeKit interface doesn't block attempting this behavior.
+By **default** the IQ panels don't support directly transitioning from one armed state to another, you must first Disarm(Off) before you can arm as Stay(Home) or Away.
+The plugin supports direct transions with the following configurations:
+- If Arm Away Exit Delay is set to 0, panel will allow a direct transition from Arm_Stay to Arm_Away
+- If Arm Stay Exit Delay is set to 0, panel will allow a direct transition from Arm_Amay to Arm_Stay 
 
 ### Tips
 There are few things to be aware of in reguard to how HomeKit currenlty (iOS 16.0) represents security sensors.
