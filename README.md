@@ -19,8 +19,8 @@ This plugin only supports the IQ Panel basic security features:
 | ------ | ------ |  ------ |
 | [IQ](https://qolsys.com/iq-panel/) | Not Supported|  |
 | [IQ HUB](https://qolsys.com/iq4-hub/) |Not Supported |  |
-| [IQ2](https://qolsys.com/iq-panel-2/) | Supported | Software >= 2.4.0 |
-| [IQ2+](https://qolsys.com/iq-panel-2-plus/) | Supported| For software >= 2.6.2: Enable 6-digit user codes |
+| [IQ2](https://qolsys.com/iq-panel-2/) | Supported | Software >= 2.4.0, >= 2.6.2: Enable 6-digit user codes |
+| [IQ2+](https://qolsys.com/iq-panel-2-plus/) | Supported| Software >= 2.6.2: Enable 6-digit user codes |
 | [IQ4](https://qolsys.com/iq-panel-4/) | Supported | Software >= 4.1.0,  >= 4.2.0: Enable 6-digit user codes |
 | [IQ4 HUB](https://qolsys.com/iq4-hub/) | Status Pending (assumed same support as IQ4) |  |
 | [IQ4 NS](https://qolsys.com/iq4-ns/) | Status Pending (assumed same support as IQ4) | (Requires companion app to setup)  |
