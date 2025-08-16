@@ -1,6 +1,6 @@
-import { QolsysZoneStatus} from './QolsysZone';
-import { HKSensorType, HBQolsysPanel} from './platform';
-import { HKAccessory } from './HKAccessory';
+import { QolsysZoneStatus } from './QolsysZone.js';
+import { HKSensorType, HBQolsysPanel } from './platform.js';
+import { HKAccessory } from './HKAccessory.js';
 
 export abstract class HKSensor extends HKAccessory{
   protected LastEvent: Date;
@@ -10,7 +10,7 @@ export abstract class HKSensor extends HKAccessory{
     protected readonly ZoneId: number,
     protected readonly SensorType: HKSensorType,
     protected readonly Name:string,
-    protected readonly UUID,
+    protected readonly UUID:string,
   ) {
     super(platform, Name, UUID);
 
@@ -19,7 +19,7 @@ export abstract class HKSensor extends HKAccessory{
     this.LastEvent = new Date();
   }
 
-  abstract HandleEventDetected(ZoneStatus: QolsysZoneStatus);
+  abstract HandleEventDetected(ZoneStatus: QolsysZoneStatus):void;
 
   protected EventDelayNeeded():number{
 

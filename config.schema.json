@@ -116,6 +116,11 @@
         "title": "Show Freeze sensor",
         "default": true
       },
+      "ShowShock":{
+        "type": "boolean",
+        "title": "Show Shock sensor",
+        "default": true
+      },
       "LogPartition":{
         "type": "boolean",
         "title": "Show Partitions notifications",
@@ -231,7 +236,8 @@
             "ShowTilt",
             "ShowGlassBreak",
             "ShowDoorbell",
-            "ShowFreeze"
+            "ShowFreeze",
+            "ShowShock"
           ]
         },
         {

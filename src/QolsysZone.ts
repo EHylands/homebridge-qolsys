@@ -22,6 +22,7 @@ export enum QolsysZoneType{
   Heat,
   Doorbell,
   Freeze,
+  Shock,
   Unknow
 }
 
@@ -39,12 +40,12 @@ export class QolsysZone{
 
   SetZoneStatusFromString(Status:string):boolean{
     switch(Status){
-      case 'Open':
-        return this.SetZoneStatus(QolsysZoneStatus.OPEN);
-      case 'Closed':
-        return this.SetZoneStatus(QolsysZoneStatus.CLOSED);
-      default:
-        return this.SetZoneStatus(QolsysZoneStatus.Unknow);
+    case 'Open':
+      return this.SetZoneStatus(QolsysZoneStatus.OPEN);
+    case 'Closed':
+      return this.SetZoneStatus(QolsysZoneStatus.CLOSED);
+    default:
+      return this.SetZoneStatus(QolsysZoneStatus.Unknow);
     }
   }
 
@@ -59,80 +60,84 @@ export class QolsysZone{
 
   SetZoneType(Type:string){
     switch(Type){
-      case 'Door_Window':
-        this.ZoneType = QolsysZoneType.DoorWindow;
-        break;
+    case 'Door_Window':
+      this.ZoneType = QolsysZoneType.DoorWindow;
+      break;
 
-      case 'GlassBreak':
-        this.ZoneType = QolsysZoneType.GlassBreak;
-        break;
+    case 'GlassBreak':
+      this.ZoneType = QolsysZoneType.GlassBreak;
+      break;
 
-      case 'Panel Glass Break':
-        this.ZoneType = QolsysZoneType.PanelGlassBreak;
-        break;
+    case 'Panel Glass Break':
+      this.ZoneType = QolsysZoneType.PanelGlassBreak;
+      break;
 
-      case 'Motion':
-        this.ZoneType = QolsysZoneType.Motion;
-        break;
+    case 'Motion':
+      this.ZoneType = QolsysZoneType.Motion;
+      break;
 
-      case 'Panel Motion':
-        this.ZoneType = QolsysZoneType.Motion;
-        break;
+    case 'Panel Motion':
+      this.ZoneType = QolsysZoneType.Motion;
+      break;
 
-      case 'SmokeDetector':
-        this.ZoneType = QolsysZoneType.SmokeDetector;
-        break;
+    case 'SmokeDetector':
+      this.ZoneType = QolsysZoneType.SmokeDetector;
+      break;
 
-      case 'Smoke_M':
-        this.ZoneType = QolsysZoneType.SmokeDetector;
-        break;
+    case 'Smoke_M':
+      this.ZoneType = QolsysZoneType.SmokeDetector;
+      break;
 
-      case 'AuxiliaryPendant':
-        this.ZoneType = QolsysZoneType.AuxiliaryPendant;
-        break;
+    case 'AuxiliaryPendant':
+      this.ZoneType = QolsysZoneType.AuxiliaryPendant;
+      break;
 
-      case 'Water':
-        this.ZoneType = QolsysZoneType.Water;
-        break;
+    case 'Water':
+      this.ZoneType = QolsysZoneType.Water;
+      break;
 
-      case 'CODetector':
-        this.ZoneType = QolsysZoneType.CODetector;
-        break;
+    case 'CODetector':
+      this.ZoneType = QolsysZoneType.CODetector;
+      break;
 
-      case 'Bluetooth':
-        this.ZoneType = QolsysZoneType.Bluetooth;
-        break;
+    case 'Bluetooth':
+      this.ZoneType = QolsysZoneType.Bluetooth;
+      break;
 
-      case 'Keypad':
-        this.ZoneType = QolsysZoneType.Keypad;
-        break;
+    case 'Keypad':
+      this.ZoneType = QolsysZoneType.Keypad;
+      break;
 
-      case 'TakeoverModule':
-        this.ZoneType = QolsysZoneType.TakeoverModule;
-        break;
+    case 'TakeoverModule':
+      this.ZoneType = QolsysZoneType.TakeoverModule;
+      break;
 
-      case 'Tilt':
-        this.ZoneType = QolsysZoneType.Tilt;
-        break;
+    case 'Tilt':
+      this.ZoneType = QolsysZoneType.Tilt;
+      break;
 
-      case 'KeyFob':
-        this.ZoneType = QolsysZoneType.KeyFob;
-        break;
+    case 'KeyFob':
+      this.ZoneType = QolsysZoneType.KeyFob;
+      break;
 
-      case 'Freeze':
-        this.ZoneType = QolsysZoneType.Freeze;
-        break;
+    case 'Freeze':
+      this.ZoneType = QolsysZoneType.Freeze;
+      break;
 
-      case 'Heat':
-        this.ZoneType = QolsysZoneType.Heat;
-        break;
+    case 'Heat':
+      this.ZoneType = QolsysZoneType.Heat;
+      break;
 
-      case 'Doorbell':
-        this.ZoneType = QolsysZoneType.Doorbell;
-        break;
+    case 'Doorbell':
+      this.ZoneType = QolsysZoneType.Doorbell;
+      break;
 
-      default:
-        this.ZoneType = QolsysZoneType.Unknow;
+    case 'Shock':
+      this.ZoneType = QolsysZoneType.Shock;
+      break;
+
+    default:
+      this.ZoneType = QolsysZoneType.Unknow;
     }
   }
 

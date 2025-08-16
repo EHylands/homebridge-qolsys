@@ -1,7 +1,7 @@
 import { Service } from 'homebridge';
-import { HKSensor } from './HKSensor';
-import { QolsysZoneStatus} from './QolsysZone';
-import { HKSensorType, HBQolsysPanel } from './platform';
+import { HKSensor } from './HKSensor.js';
+import { QolsysZoneStatus } from './QolsysZone.js';
+import { HKSensorType, HBQolsysPanel } from './platform.js';
 
 export class HKSmokeSensor extends HKSensor {
 
@@ -11,7 +11,7 @@ export class HKSmokeSensor extends HKSensor {
     protected readonly platform: HBQolsysPanel,
     protected ZoneId: number,
     protected readonly Name:string,
-    protected readonly UUID,
+    protected readonly UUID:string,
   ) {
 
     super(platform, ZoneId, HKSensorType.SmokeSensor, Name, UUID);

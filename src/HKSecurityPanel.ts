@@ -1,7 +1,7 @@
-import { Service} from 'homebridge';
-import { QolsysAlarmMode} from './QolsysPartition';
-import { HBQolsysPanel } from './platform';
-import { HKAccessory } from './HKAccessory';
+import { Service } from 'homebridge';
+import { QolsysAlarmMode } from './QolsysPartition.js';
+import { HBQolsysPanel } from './platform.js';
+import { HKAccessory } from './HKAccessory.js';
 
 export class HKSecurityPanel extends HKAccessory {
   private service: Service;
@@ -10,7 +10,7 @@ export class HKSecurityPanel extends HKAccessory {
     protected readonly platform: HBQolsysPanel,
     protected PartitionId: number,
     protected readonly Name:string,
-    protected readonly UUID,
+    protected readonly UUID:string,
   ) {
 
     super(platform, Name, UUID);
@@ -39,10 +39,10 @@ export class HKSecurityPanel extends HKAccessory {
     ];
 
     this.service.getCharacteristic(this.platform.api.hap.Characteristic.SecuritySystemCurrentState)
-      .setProps({ validValues: ValidCurrentStates});
+      .setProps({ validValues: ValidCurrentStates });
 
     this.service.getCharacteristic(this.platform.api.hap.Characteristic.SecuritySystemTargetState)
-      .setProps({ validValues: ValidTargetStates});
+      .setProps({ validValues: ValidTargetStates });
 
     this.service.getCharacteristic(this.platform.Characteristic.SecuritySystemTargetState)
       .onSet(this.handleSecuritySystemTargetStateSet.bind(this));
@@ -66,7 +66,7 @@ export class HKSecurityPanel extends HKAccessory {
     });
   }
 
-  handleSecuritySystemTargetStateSet(value) {
+  handleSecuritySystemTargetStateSet(value:unknown) {
 
     const Partition = this.platform.Controller.GetPartitions()[this.PartitionId];
     const AwayExitDelay = this.platform.AwayExitDelay;
@@ -74,48 +74,48 @@ export class HKSecurityPanel extends HKAccessory {
     const Bypass = this.platform.ForceArm;
 
     switch(value){
-      case this.platform.Characteristic.SecuritySystemTargetState.DISARM:{
-        this.platform.Controller.SendArmCommand(QolsysAlarmMode.DISARM, this.PartitionId, 0, true);
-        break;
-      }
+    case this.platform.Characteristic.SecuritySystemTargetState.DISARM:{
+      this.platform.Controller.SendArmCommand(QolsysAlarmMode.DISARM, this.PartitionId, 0, true);
+      break;
+    }
 
-      case this.platform.Characteristic.SecuritySystemTargetState.AWAY_ARM:{
+    case this.platform.Characteristic.SecuritySystemTargetState.AWAY_ARM:{
 
-        if(Partition.PartitionStatus === QolsysAlarmMode.ARM_STAY || Partition.PartitionStatus === QolsysAlarmMode.ARM_STAY_EXIT_DELAY ){
-          if(AwayExitDelay > 0){
-            setTimeout(() => {
-              this.service.getCharacteristic(this.platform.Characteristic.SecuritySystemTargetState)
-                .updateValue(this.platform.Characteristic.SecuritySystemTargetState.STAY_ARM);
-            }, 100);
-            return;
-          }
+      if(Partition.PartitionStatus === QolsysAlarmMode.ARM_STAY || Partition.PartitionStatus === QolsysAlarmMode.ARM_STAY_EXIT_DELAY ){
+        if(AwayExitDelay > 0){
+          setTimeout(() => {
+            this.service.getCharacteristic(this.platform.Characteristic.SecuritySystemTargetState)
+              .updateValue(this.platform.Characteristic.SecuritySystemTargetState.STAY_ARM);
+          }, 100);
+          return;
         }
-
-        this.platform.Controller.SendArmCommand(QolsysAlarmMode.ARM_AWAY, this.PartitionId, AwayExitDelay, Bypass);
-        break;
       }
 
-      case this.platform.Characteristic.SecuritySystemTargetState.NIGHT_ARM:{
-        const Bypass = this.platform.ForceArm;
-        this.platform.Controller.SendArmCommand(QolsysAlarmMode.ARM_STAY, this.PartitionId, 0, Bypass);
-        break;
-      }
+      this.platform.Controller.SendArmCommand(QolsysAlarmMode.ARM_AWAY, this.PartitionId, AwayExitDelay, Bypass);
+      break;
+    }
 
-      case this.platform.Characteristic.SecuritySystemTargetState.STAY_ARM:{
+    case this.platform.Characteristic.SecuritySystemTargetState.NIGHT_ARM:{
+      const Bypass = this.platform.ForceArm;
+      this.platform.Controller.SendArmCommand(QolsysAlarmMode.ARM_STAY, this.PartitionId, 0, Bypass);
+      break;
+    }
 
-        if(Partition.PartitionStatus === QolsysAlarmMode.ARM_AWAY || Partition.PartitionStatus === QolsysAlarmMode.ARM_AWAY_EXIT_DELAY ){
-          if(HomeExitDelay > 0){
-            setTimeout(() => {
-              this.service.getCharacteristic(this.platform.Characteristic.SecuritySystemTargetState)
-                .updateValue(this.platform.Characteristic.SecuritySystemTargetState.AWAY_ARM);
-            }, 100);
-            return;
-          }
+    case this.platform.Characteristic.SecuritySystemTargetState.STAY_ARM:{
+
+      if(Partition.PartitionStatus === QolsysAlarmMode.ARM_AWAY || Partition.PartitionStatus === QolsysAlarmMode.ARM_AWAY_EXIT_DELAY ){
+        if(HomeExitDelay > 0){
+          setTimeout(() => {
+            this.service.getCharacteristic(this.platform.Characteristic.SecuritySystemTargetState)
+              .updateValue(this.platform.Characteristic.SecuritySystemTargetState.AWAY_ARM);
+          }, 100);
+          return;
         }
-
-        this.platform.Controller.SendArmCommand(QolsysAlarmMode.ARM_STAY, this.PartitionId, HomeExitDelay, Bypass);
-        break;
       }
+
+      this.platform.Controller.SendArmCommand(QolsysAlarmMode.ARM_STAY, this.PartitionId, HomeExitDelay, Bypass);
+      break;
+    }
     }
   }
 
@@ -124,81 +124,81 @@ export class HKSecurityPanel extends HKAccessory {
     const PreviousStatus = this.platform.Controller.GetPartitions()[this.PartitionId].PartitionPreviousStatus;
 
     switch(Status){
-      case QolsysAlarmMode.EXIT_DELAY:
-        return this.platform.Characteristic.SecuritySystemCurrentState.DISARMED;
+    case QolsysAlarmMode.EXIT_DELAY:
+      return this.platform.Characteristic.SecuritySystemCurrentState.DISARMED;
 
-      case QolsysAlarmMode.ENTRY_DELAY:
+    case QolsysAlarmMode.ENTRY_DELAY:
 
-        if(PreviousStatus === QolsysAlarmMode.ARM_STAY){
-          return this.platform.Characteristic.SecuritySystemCurrentState.STAY_ARM;
-        } else{
-          return this.platform.Characteristic.SecuritySystemCurrentState.AWAY_ARM;
-        }
-
-      case QolsysAlarmMode.ARM_STAY_EXIT_DELAY:
-        return this.platform.Characteristic.SecuritySystemCurrentState.DISARMED;
-
-      case QolsysAlarmMode.ARM_AWAY_EXIT_DELAY:
-        return this.platform.Characteristic.SecuritySystemCurrentState.DISARMED;
-
-      case QolsysAlarmMode.ARM_AWAY:
-        return this.platform.Characteristic.SecuritySystemCurrentState.AWAY_ARM;
-
-      case QolsysAlarmMode.ARM_STAY:
+      if(PreviousStatus === QolsysAlarmMode.ARM_STAY){
         return this.platform.Characteristic.SecuritySystemCurrentState.STAY_ARM;
+      } else{
+        return this.platform.Characteristic.SecuritySystemCurrentState.AWAY_ARM;
+      }
 
-      case QolsysAlarmMode.ALARM_AUXILIARY:
-        return this.platform.Characteristic.SecuritySystemCurrentState.ALARM_TRIGGERED;
+    case QolsysAlarmMode.ARM_STAY_EXIT_DELAY:
+      return this.platform.Characteristic.SecuritySystemCurrentState.DISARMED;
 
-      case QolsysAlarmMode.ALARM_FIRE:
-        return this.platform.Characteristic.SecuritySystemCurrentState.ALARM_TRIGGERED;
+    case QolsysAlarmMode.ARM_AWAY_EXIT_DELAY:
+      return this.platform.Characteristic.SecuritySystemCurrentState.DISARMED;
 
-      case QolsysAlarmMode.ALARM_POLICE:
-        return this.platform.Characteristic.SecuritySystemCurrentState.ALARM_TRIGGERED;
+    case QolsysAlarmMode.ARM_AWAY:
+      return this.platform.Characteristic.SecuritySystemCurrentState.AWAY_ARM;
 
-      case QolsysAlarmMode.DISARM:
-        return this.platform.Characteristic.SecuritySystemCurrentState.DISARMED;
+    case QolsysAlarmMode.ARM_STAY:
+      return this.platform.Characteristic.SecuritySystemCurrentState.STAY_ARM;
 
-      case QolsysAlarmMode.Unknow:
-        return this.platform.Characteristic.SecuritySystemCurrentState.DISARMED;
+    case QolsysAlarmMode.ALARM_AUXILIARY:
+      return this.platform.Characteristic.SecuritySystemCurrentState.ALARM_TRIGGERED;
+
+    case QolsysAlarmMode.ALARM_FIRE:
+      return this.platform.Characteristic.SecuritySystemCurrentState.ALARM_TRIGGERED;
+
+    case QolsysAlarmMode.ALARM_POLICE:
+      return this.platform.Characteristic.SecuritySystemCurrentState.ALARM_TRIGGERED;
+
+    case QolsysAlarmMode.DISARM:
+      return this.platform.Characteristic.SecuritySystemCurrentState.DISARMED;
+
+    case QolsysAlarmMode.Unknow:
+      return this.platform.Characteristic.SecuritySystemCurrentState.DISARMED;
     }
   }
 
   private QolsysPartitionStatusToTargetHKStatus(Status: QolsysAlarmMode){
 
     switch(Status){
-      case QolsysAlarmMode.EXIT_DELAY:
-        return this.platform.Characteristic.SecuritySystemTargetState.AWAY_ARM;
+    case QolsysAlarmMode.EXIT_DELAY:
+      return this.platform.Characteristic.SecuritySystemTargetState.AWAY_ARM;
 
-      case QolsysAlarmMode.ENTRY_DELAY:
-        return this.platform.Characteristic.SecuritySystemTargetState.DISARM;
+    case QolsysAlarmMode.ENTRY_DELAY:
+      return this.platform.Characteristic.SecuritySystemTargetState.DISARM;
 
-      case QolsysAlarmMode.ARM_STAY_EXIT_DELAY:
-        return this.platform.Characteristic.SecuritySystemTargetState.STAY_ARM;
+    case QolsysAlarmMode.ARM_STAY_EXIT_DELAY:
+      return this.platform.Characteristic.SecuritySystemTargetState.STAY_ARM;
 
-      case QolsysAlarmMode.ARM_AWAY_EXIT_DELAY:
-        return this.platform.Characteristic.SecuritySystemTargetState.AWAY_ARM;
+    case QolsysAlarmMode.ARM_AWAY_EXIT_DELAY:
+      return this.platform.Characteristic.SecuritySystemTargetState.AWAY_ARM;
 
-      case QolsysAlarmMode.ARM_AWAY:
-        return this.platform.Characteristic.SecuritySystemTargetState.AWAY_ARM;
+    case QolsysAlarmMode.ARM_AWAY:
+      return this.platform.Characteristic.SecuritySystemTargetState.AWAY_ARM;
 
-      case QolsysAlarmMode.ARM_STAY:
-        return this.platform.Characteristic.SecuritySystemTargetState.STAY_ARM;
+    case QolsysAlarmMode.ARM_STAY:
+      return this.platform.Characteristic.SecuritySystemTargetState.STAY_ARM;
 
-      case QolsysAlarmMode.ALARM_AUXILIARY:
-        return this.platform.Characteristic.SecuritySystemTargetState.DISARM;
+    case QolsysAlarmMode.ALARM_AUXILIARY:
+      return this.platform.Characteristic.SecuritySystemTargetState.DISARM;
 
-      case QolsysAlarmMode.ALARM_FIRE:
-        return this.platform.Characteristic.SecuritySystemTargetState.DISARM;
+    case QolsysAlarmMode.ALARM_FIRE:
+      return this.platform.Characteristic.SecuritySystemTargetState.DISARM;
 
-      case QolsysAlarmMode.ALARM_POLICE:
-        return this.platform.Characteristic.SecuritySystemTargetState.DISARM;
+    case QolsysAlarmMode.ALARM_POLICE:
+      return this.platform.Characteristic.SecuritySystemTargetState.DISARM;
 
-      case QolsysAlarmMode.DISARM:
-        return this.platform.Characteristic.SecuritySystemTargetState.DISARM;
+    case QolsysAlarmMode.DISARM:
+      return this.platform.Characteristic.SecuritySystemTargetState.DISARM;
 
-      case QolsysAlarmMode.Unknow:
-        return this.platform.Characteristic.SecuritySystemTargetState.DISARM;
+    case QolsysAlarmMode.Unknow:
+      return this.platform.Characteristic.SecuritySystemTargetState.DISARM;
     }
   }
 }

@@ -1,17 +1,8 @@
-/*  Based on research and code from the following
-*  - HomeAssistant community
-*    https://community.home-assistant.io/t/qolsys-iq-panel-2-and-3rd-party-integration/231405
-*
-*  - Don Caton <dcaton1220@gmail.com> Hubitat-QolSysIQPanel plugin
-*    https://github.com/dcaton/Hubitat/tree/main/QolSysIQPanel
-*
-*/
-
-import { QolsysZone } from './QolsysZone';
-import { QolsysPartition, QolsysAlarmMode } from './QolsysPartition';
+import { QolsysZone } from './QolsysZone.js';
+import { QolsysPartition, QolsysAlarmMode } from './QolsysPartition.js';
 import { TypedEmitter } from 'tiny-typed-emitter';
-import tls = require('tls');
-import net = require('net');
+import tls from 'node:tls';
+import net from 'node:net';
 
 interface PayloadJSON{
   event:string;
@@ -70,433 +61,435 @@ export interface QolsysControllerEvent {
 }
 
 export class QolsysController extends TypedEmitter<QolsysControllerEvent> {
-    Util = require('util');
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
+  //Util = require('util');
 
-    private Host: string;
-    private Port: number;
-    SecureToken = '';
-    UserPinCode = '';
-    private Socket: net.Socket;
-    private SocktetTimeout = 180000;
-    private SocketKeepAliveTimeout = 30000;
-    private PartialMessage = '';
+  private Host: string;
+  private Port: number;
+  SecureToken = '';
+  UserPinCode = '';
+  private Socket: net.Socket;
+  private SocktetTimeout = 180000;
+  private SocketKeepAliveTimeout = 30000;
+  private PartialMessage = '';
 
-    private Partitions:Record<number, QolsysPartition> = {};
-    private Zones:Record<number, QolsysZone> = {};
+  private Partitions:Record<number, QolsysPartition> = {};
+  private Zones:Record<number, QolsysZone> = {};
 
-    private PanelReadyForOperation = false;
-    private PanelReceivingNotifcation = false;
-    private InitialRun = false;
-    private LastRefreshDate = new Date();
+  private PanelReadyForOperation = false;
+  private PanelReceivingNotifcation = false;
+  private InitialRun = false;
+  private LastRefreshDate = new Date();
 
-    constructor(Host: string, Port:number) {
-      super();
-      this.Host = Host;
-      this.Port = Port;
-      this.Socket = new net.Socket();
-    }
+  constructor(Host: string, Port:number) {
+    super();
+    this.Host = Host;
+    this.Port = Port;
+    this.Socket = new net.Socket();
+  }
 
-    GetPartitions(){
-      return this.Partitions;
-    }
+  GetPartitions(){
+    return this.Partitions;
+  }
 
-    GetZones(){
-      return this.Zones;
-    }
+  GetZones(){
+    return this.Zones;
+  }
 
-    Connect(){
-      this.Zones = {};
-      this.Partitions = {};
+  Connect(){
+    this.Zones = {};
+    this.Partitions = {};
 
+    this.PanelReadyForOperation = false;
+    this.PanelReceivingNotifcation = false;
+    this.PartialMessage = '';
+
+    // Initial connection to Panel
+    this.emit('PrintDebugInfo', 'Connecting: ' + this.Host + ':' + this.Port);
+
+    const options = {
+      rejectUnauthorized: false,
+    };
+
+    this.Socket = tls.connect(this.Port, this.Host, options, ()=>{
+      this.Refresh();
+    });
+
+    this.Socket.setTimeout(this.SocktetTimeout);
+
+    this.Socket.on('timeout', ()=>{
       this.PanelReadyForOperation = false;
       this.PanelReceivingNotifcation = false;
-      this.PartialMessage = '';
+      this.emit('PanelReceivingNotifiation', this.PanelReceivingNotifcation);
+      this.Socket.destroy();
+      this.emit('ControllerError', QolsysControllerError.ConnectionError, 'Timeout');
+    });
 
-      // Initial connection to Panel
-      this.emit('PrintDebugInfo', 'Connecting: ' + this.Host + ':' + this.Port);
+    this.Socket.on('error', (error: Error) => {
+      this.PanelReadyForOperation = false;
+      this.PanelReceivingNotifcation = false;
+      this.emit('PanelReceivingNotifiation', this.PanelReceivingNotifcation);
+      this.Socket.destroy();
+      this.emit('ControllerError', QolsysControllerError.ConnectionError, error.message);
+    });
 
-      const options = {
-        rejectUnauthorized: false,
-      };
+    this.Socket.on('data', (data: Buffer) => {
+      this.Parse(data.toString());
+    });
+  }
 
-      this.Socket = tls.connect(this.Port, this.Host, options, ()=>{
-        this.Refresh();
-      });
+  private SendCommand(Command:string){
+    this.emit('PrintDebugInfo', 'Sending: ' + Command);
+    this.Socket.write(Command);
+  }
 
-      this.Socket.setTimeout(this.SocktetTimeout);
+  StartOperation(){
+    this.PanelReceivingNotifcation = true;
+    this.InitialRun = true;
+    this.Refresh();
+    this.CheckIsRefreshNeed();
+  }
 
-      this.Socket.on('timeout', ()=>{
-        this.PanelReadyForOperation = false;
-        this.PanelReceivingNotifcation = false;
-        this.emit('PanelReceivingNotifiation', this.PanelReceivingNotifcation);
-        this.Socket.destroy();
-        this.emit('ControllerError', QolsysControllerError.ConnectionError, 'Timeout');
-      });
-
-      this.Socket.on('error', (error: Error) => {
-        this.PanelReadyForOperation = false;
-        this.PanelReceivingNotifcation = false;
-        this.emit('PanelReceivingNotifiation', this.PanelReceivingNotifcation);
-        this.Socket.destroy();
-        this.emit('ControllerError', QolsysControllerError.ConnectionError, error.message);
-      });
-
-      this.Socket.on('data', (data: Buffer) => {
-        this.Parse(data.toString());
-      });
-    }
-
-    private SendCommand(Command:string){
-      this.emit('PrintDebugInfo', 'Sending: ' + Command);
-      this.Socket.write(Command);
-    }
-
-    StartOperation(){
-      this.PanelReceivingNotifcation = true;
-      this.InitialRun = true;
+  CheckIsRefreshNeed(){
+    const Now = new Date();
+    const Delta = (Now.getTime() - this.LastRefreshDate.getTime());
+    if(Delta >= this.SocketKeepAliveTimeout){
       this.Refresh();
+    }
+
+    setTimeout(() => {
       this.CheckIsRefreshNeed();
-    }
+    }, this.SocketKeepAliveTimeout/2);
+    return;
 
-    CheckIsRefreshNeed(){
-      const Now = new Date();
-      const Delta = (Now.getTime() - this.LastRefreshDate.getTime());
-      if(Delta >= this.SocketKeepAliveTimeout){
-        this.Refresh();
-      }
+  }
 
-      setTimeout(() => {
-        this.CheckIsRefreshNeed();
-      }, this.SocketKeepAliveTimeout/2);
-      return;
+  private Refresh(){
+    const CommandJSON = {
+      nonce: '',
+      action: 'INFO',
+      info_type: 'SUMMARY',
+      version: 1,
+      source: 'C4',
+      token: this.SecureToken,
+    };
 
-    }
+    this.SendCommand(JSON.stringify(CommandJSON));
+  }
 
-    private Refresh(){
-      const CommandJSON = {
-        nonce: '',
-        action: 'INFO',
-        info_type: 'SUMMARY',
-        version: 1,
-        source: 'C4',
-        token: this.SecureToken,
-      };
+  private Parse(Message:string){
 
-      this.SendCommand(JSON.stringify(CommandJSON));
-    }
+    let FormattedMessage:string = Message.replace(/[^\x20-\x7E]+/g, '');
 
-    private Parse(Message:string){
+    if(FormattedMessage === 'ACK'){
+      this.PartialMessage = '';
+      this.emit('PrintDebugInfo', 'Received: ' + FormattedMessage);
+    } else{
+      FormattedMessage = this.PartialMessage + FormattedMessage;
+      FormattedMessage = FormattedMessage.replace(/[^\x20-\x7E]+/g, '');
 
-      let FormattedMessage:string = Message.replace(/[^\x20-\x7E]+/g, '');
-
-      if(FormattedMessage === 'ACK'){
-        this.PartialMessage = '';
+      try{
+        const Payload:PayloadJSON = JSON.parse(FormattedMessage);
         this.emit('PrintDebugInfo', 'Received: ' + FormattedMessage);
-      } else{
-        FormattedMessage = this.PartialMessage + FormattedMessage;
-        FormattedMessage = FormattedMessage.replace(/[^\x20-\x7E]+/g, '');
 
-        try{
-          const Payload:PayloadJSON = JSON.parse(FormattedMessage);
-          this.emit('PrintDebugInfo', 'Received: ' + FormattedMessage);
+        switch(Payload.event){
 
-          switch(Payload.event){
+        case 'INFO':
 
-            case 'INFO':
+          switch(Payload.info_type){
+          case 'SUMMARY':
+            this.ProcessSummary(Payload);
+            break;
 
-              switch(Payload.info_type){
-                case 'SUMMARY':
-                  this.ProcessSummary(Payload);
-                  break;
-
-                default:
-                  this.emit('ControllerError', QolsysControllerError.InvalidPayloadInfoType, 'Received Invalid Payload Info Type:'
+          default:
+            this.emit('ControllerError', QolsysControllerError.InvalidPayloadInfoType, 'Received Invalid Payload Info Type:'
                   + FormattedMessage);
-              }
-              break;
+          }
+          break;
 
-            case 'ZONE_EVENT':
+        case 'ZONE_EVENT':
 
-              switch(Payload.zone_event_type){
-                case 'ZONE_UPDATE':
-                  this.ProcessZoneUpdate(Payload);
-                  break;
+          switch(Payload.zone_event_type){
+          case 'ZONE_UPDATE':
+            this.ProcessZoneUpdate(Payload);
+            break;
 
-                case 'ZONE_ACTIVE':
-                  this.ProcessZoneActive(Payload);
-                  break;
+          case 'ZONE_ACTIVE':
+            this.ProcessZoneActive(Payload);
+            break;
 
-                case 'ZONE_ADD':
-                  this.emit('PrintDebugInfo', 'Zone added to panel, please restart Homebridge to apply changes');
-                  break;
+          case 'ZONE_ADD':
+            this.emit('PrintDebugInfo', 'Zone added to panel, please restart Homebridge to apply changes');
+            break;
 
-                default:
-                  this.emit('ControllerError', QolsysControllerError.InvalidZoneEventType, 'Received Invalid Zone Event Type:'
+          default:
+            this.emit('ControllerError', QolsysControllerError.InvalidZoneEventType, 'Received Invalid Zone Event Type:'
                    + FormattedMessage);
-                  break;
-              }
-              break;
-
-            case 'ARMING':
-              switch (Payload.arming_type) {
-                case 'EXIT_DELAY':
-                  this.ProcessArmingType(Payload.partition_id, QolsysAlarmMode.EXIT_DELAY);
-                  break;
-
-                case 'ENTRY_DELAY':
-                  this.ProcessArmingType(Payload.partition_id, QolsysAlarmMode.ENTRY_DELAY);
-                  break;
-
-                case 'DISARM':
-                  this.ProcessArmingType(Payload.partition_id, QolsysAlarmMode.DISARM);
-                  break;
-
-                case 'ARM_STAY':
-                  this.ProcessArmingType(Payload.partition_id, QolsysAlarmMode.ARM_STAY);
-                  break;
-
-                case 'ARM_AWAY':
-                  this.ProcessArmingType(Payload.partition_id, QolsysAlarmMode.ARM_AWAY);
-                  break;
-
-                default:
-                  this.emit('ControllerError', QolsysControllerError.InvalidArmingType, 'Received Invalid Arming Type:' + FormattedMessage);
-                  break;
-              }
-              break;
-
-            case 'ALARM':
-              switch(Payload.alarm_type){
-
-                case 'POLICE':
-                  this.ProcessAlarm(Payload.partition_id, QolsysAlarmMode.ALARM_POLICE);
-                  break;
-
-                case '':
-                  this.ProcessAlarm(Payload.partition_id, QolsysAlarmMode.ALARM_POLICE);
-                  break;
-
-                case 'FIRE':
-                  this.ProcessAlarm(Payload.partition_id, QolsysAlarmMode.ALARM_FIRE);
-                  break;
-
-                case 'AUXILIARY':
-                  this.ProcessAlarm(Payload.partition_id, QolsysAlarmMode.ALARM_AUXILIARY);
-                  break;
-
-                default:
-                  this.emit('ControllerError', QolsysControllerError.InvalidArmingType, 'Received Invalid Alarm Type:' + FormattedMessage);
-                  break;
-              }
-
-              break;
-
-            case 'ERROR':
-              this.emit('ControllerError', QolsysControllerError.QolsysPanelError, '(' + Payload.error_type +'):' + Payload.description);
-              this.Refresh();
-
-              break;
-
-            default:
-              this.emit('ControllerError', QolsysControllerError.InvalidPayloadEvent, 'Received Invalid Payload Event');
-              break;
-
-          }
-
-          this.PartialMessage = '';
-          this.LastRefreshDate = new Date();
-
-        }catch(error){
-          this.emit('PrintDebugInfo', 'JSON ERROR OR PARTIAL MESSAGE');
-          this.emit('PrintDebugInfo', 'Received: ' + FormattedMessage);
-          this.PartialMessage = FormattedMessage;
-        }
-      }
-    }
-
-    SendArmCommand(ArmingType:QolsysAlarmMode, PartitionId:number, Delay:number, Bypass:boolean){
-
-      const ArmingJSON = {
-        version: 1,
-        source: 'C4',
-        action: 'ARMING',
-        nonce: '',
-        token: this.SecureToken,
-        partition_id: PartitionId,
-        arming_type: '',
-        delay: Delay,
-        bypass: Bypass === true? 'true':'false',
-      };
-
-      const SecureArmingJSON = {
-        version: 1,
-        source: 'C4',
-        action: 'ARMING',
-        nonce: '',
-        token: this.SecureToken,
-        usercode: this.UserPinCode,
-        partition_id: PartitionId,
-        arming_type: '',
-        delay: Delay,
-        bypass: Bypass === true? 'true':'false',
-      };
-
-      const DisarmJSON = {
-        version: 1,
-        source: 'C4',
-        action: 'ARMING',
-        nonce: '',
-        token: this.SecureToken,
-        usercode: this.UserPinCode,
-        partition_id: PartitionId,
-        arming_type: QolsysAlarmMode.DISARM,
-      };
-
-
-      const Partition = this.Partitions[PartitionId];
-      if(Partition === undefined){
-        this.emit('ControllerError', QolsysControllerError.InvalidPartition, 'SendArmingCommand: Invalid Partition');
-        return;
-      }
-
-      switch(ArmingType){
-        case QolsysAlarmMode.DISARM:
-          DisarmJSON.arming_type = QolsysAlarmMode[ArmingType];
-          this.SendCommand(JSON.stringify(DisarmJSON));
-          break;
-
-        case QolsysAlarmMode.ARM_AWAY:
-          if(Partition.SecureArm){
-            SecureArmingJSON.arming_type = QolsysAlarmMode[ArmingType];
-            this.SendCommand(JSON.stringify(SecureArmingJSON));
-          } else{
-            ArmingJSON.arming_type = QolsysAlarmMode[ArmingType];
-            this.SendCommand(JSON.stringify(ArmingJSON));
+            break;
           }
           break;
 
-        case QolsysAlarmMode.ARM_STAY:
-          if(Partition.SecureArm){
-            SecureArmingJSON.arming_type = QolsysAlarmMode[ArmingType];
-            this.SendCommand(JSON.stringify(SecureArmingJSON));
-          } else{
-            ArmingJSON.arming_type = QolsysAlarmMode[ArmingType];
-            this.SendCommand(JSON.stringify(ArmingJSON));
+        case 'ARMING':
+          switch (Payload.arming_type) {
+          case 'EXIT_DELAY':
+            this.ProcessArmingType(Payload.partition_id, QolsysAlarmMode.EXIT_DELAY);
+            break;
+
+          case 'ENTRY_DELAY':
+            this.ProcessArmingType(Payload.partition_id, QolsysAlarmMode.ENTRY_DELAY);
+            break;
+
+          case 'DISARM':
+            this.ProcessArmingType(Payload.partition_id, QolsysAlarmMode.DISARM);
+            break;
+
+          case 'ARM_STAY':
+            this.ProcessArmingType(Payload.partition_id, QolsysAlarmMode.ARM_STAY);
+            break;
+
+          case 'ARM_AWAY':
+            this.ProcessArmingType(Payload.partition_id, QolsysAlarmMode.ARM_AWAY);
+            break;
+
+          default:
+            this.emit('ControllerError', QolsysControllerError.InvalidArmingType, 'Received Invalid Arming Type:' + FormattedMessage);
+            break;
           }
+          break;
+
+        case 'ALARM':
+          switch(Payload.alarm_type){
+
+          case 'POLICE':
+            this.ProcessAlarm(Payload.partition_id, QolsysAlarmMode.ALARM_POLICE);
+            break;
+
+          case '':
+            this.ProcessAlarm(Payload.partition_id, QolsysAlarmMode.ALARM_POLICE);
+            break;
+
+          case 'FIRE':
+            this.ProcessAlarm(Payload.partition_id, QolsysAlarmMode.ALARM_FIRE);
+            break;
+
+          case 'AUXILIARY':
+            this.ProcessAlarm(Payload.partition_id, QolsysAlarmMode.ALARM_AUXILIARY);
+            break;
+
+          default:
+            this.emit('ControllerError', QolsysControllerError.InvalidArmingType, 'Received Invalid Alarm Type:' + FormattedMessage);
+            break;
+          }
+
+          break;
+
+        case 'ERROR':
+          this.emit('ControllerError', QolsysControllerError.QolsysPanelError, '(' + Payload.error_type +'):' + Payload.description);
+          this.Refresh();
+
           break;
 
         default:
-          this.emit('ControllerError', QolsysControllerError.InvalidArmingType,
-            'Sending Invalid Arming Type:' + QolsysAlarmMode[ArmingType]);
+          this.emit('ControllerError', QolsysControllerError.InvalidPayloadEvent, 'Received Invalid Payload Event');
+          break;
+
+        }
+
+        this.PartialMessage = '';
+        this.LastRefreshDate = new Date();
+
+      }catch(error){
+        this.emit('PrintDebugInfo', 'JSON ERROR OR PARTIAL MESSAGE');
+        this.emit('PrintDebugInfo', 'Received: ' + FormattedMessage);
+        this.PartialMessage = FormattedMessage;
       }
     }
+  }
 
-    private ProcessZoneUpdate(Payload:PayloadJSON){
-      const Zone = this.Zones[Payload.zone.zone_id];
-      if(Zone !== undefined){
-        if(Zone.SetZoneStatusFromString(Payload.zone.status)){
+  SendArmCommand(ArmingType:QolsysAlarmMode, PartitionId:number, Delay:number, Bypass:boolean){
 
-          if(this.PanelReadyForOperation && this.PanelReceivingNotifcation){
-            this.emit('ZoneStatusChange', Zone);
-          }
-        }
-      }
-    }
+    const ArmingJSON = {
+      version: 1,
+      source: 'C4',
+      action: 'ARMING',
+      nonce: '',
+      token: this.SecureToken,
+      partition_id: PartitionId,
+      arming_type: '',
+      delay: Delay,
+      bypass: Bypass === true? 'true':'false',
+    };
 
-    private ProcessZoneActive(Payload:PayloadJSON){
-      const Zone = this.Zones[Payload.zone.zone_id];
-      if(Zone !== undefined){
-        if(Zone.SetZoneStatusFromString(Payload.zone.status)){
-          if(this.PanelReadyForOperation && this.PanelReceivingNotifcation){
-            this.emit('ZoneStatusChange', Zone);
-          }
-        }
-      }
+    const SecureArmingJSON = {
+      version: 1,
+      source: 'C4',
+      action: 'ARMING',
+      nonce: '',
+      token: this.SecureToken,
+      usercode: this.UserPinCode,
+      partition_id: PartitionId,
+      arming_type: '',
+      delay: Delay,
+      bypass: Bypass === true? 'true':'false',
+    };
+
+    const DisarmJSON = {
+      version: 1,
+      source: 'C4',
+      action: 'ARMING',
+      nonce: '',
+      token: this.SecureToken,
+      usercode: this.UserPinCode,
+      partition_id: PartitionId,
+      arming_type: QolsysAlarmMode.DISARM,
+    };
+
+
+    const Partition = this.Partitions[PartitionId];
+    if(Partition === undefined){
+      this.emit('ControllerError', QolsysControllerError.InvalidPartition, 'SendArmingCommand: Invalid Partition');
       return;
     }
 
-    private ProcessAlarm(PartitionId:number, AlarmMode:QolsysAlarmMode){
-      const Partition = this.Partitions[PartitionId];
-      if(Partition!== undefined){
-        if(Partition.SetAlarmMode(AlarmMode)){
-          if(this.PanelReadyForOperation && this.PanelReceivingNotifcation){
-            this.emit('PartitionAlarmModeChange', Partition);
-          }
+    switch(ArmingType){
+    case QolsysAlarmMode.DISARM:
+      DisarmJSON.arming_type = QolsysAlarmMode[ArmingType];
+      this.SendCommand(JSON.stringify(DisarmJSON));
+      break;
+
+    case QolsysAlarmMode.ARM_AWAY:
+      if(Partition.SecureArm){
+        SecureArmingJSON.arming_type = QolsysAlarmMode[ArmingType];
+        this.SendCommand(JSON.stringify(SecureArmingJSON));
+      } else{
+        ArmingJSON.arming_type = QolsysAlarmMode[ArmingType];
+        this.SendCommand(JSON.stringify(ArmingJSON));
+      }
+      break;
+
+    case QolsysAlarmMode.ARM_STAY:
+      if(Partition.SecureArm){
+        SecureArmingJSON.arming_type = QolsysAlarmMode[ArmingType];
+        this.SendCommand(JSON.stringify(SecureArmingJSON));
+      } else{
+        ArmingJSON.arming_type = QolsysAlarmMode[ArmingType];
+        this.SendCommand(JSON.stringify(ArmingJSON));
+      }
+      break;
+
+    default:
+      this.emit('ControllerError', QolsysControllerError.InvalidArmingType,
+        // Fix 
+        'Sending Invalid Arming Type:' + ArmingType);
+    }
+  }
+
+  private ProcessZoneUpdate(Payload:PayloadJSON){
+    const Zone = this.Zones[Payload.zone.zone_id];
+    if(Zone !== undefined){
+      if(Zone.SetZoneStatusFromString(Payload.zone.status)){
+
+        if(this.PanelReadyForOperation && this.PanelReceivingNotifcation){
+          this.emit('ZoneStatusChange', Zone);
         }
       }
     }
+  }
 
-    private ProcessArmingType(PartitionId:number, AlarmMode:QolsysAlarmMode){
-      const Partition = this.Partitions[PartitionId];
-      if(Partition!== undefined){
+  private ProcessZoneActive(Payload:PayloadJSON){
+    const Zone = this.Zones[Payload.zone.zone_id];
+    if(Zone !== undefined){
+      if(Zone.SetZoneStatusFromString(Payload.zone.status)){
+        if(this.PanelReadyForOperation && this.PanelReceivingNotifcation){
+          this.emit('ZoneStatusChange', Zone);
+        }
+      }
+    }
+    return;
+  }
 
-        if(Partition.PartitionStatus === QolsysAlarmMode.ENTRY_DELAY){
+  private ProcessAlarm(PartitionId:number, AlarmMode:QolsysAlarmMode){
+    const Partition = this.Partitions[PartitionId];
+    if(Partition!== undefined){
+      if(Partition.SetAlarmMode(AlarmMode)){
+        if(this.PanelReadyForOperation && this.PanelReceivingNotifcation){
+          this.emit('PartitionAlarmModeChange', Partition);
+        }
+      }
+    }
+  }
+
+  private ProcessArmingType(PartitionId:number, AlarmMode:QolsysAlarmMode){
+    const Partition = this.Partitions[PartitionId];
+    if(Partition!== undefined){
+
+      if(Partition.PartitionStatus === QolsysAlarmMode.ENTRY_DELAY){
+        this.Refresh();
+        return;
+      }
+
+      if(Partition.SetAlarmMode(AlarmMode)){
+
+        // If Exit_Delay, need to run a new refresh to access ARM-AWAY-EXIT-DELAY vs ARM-STAY-EXIT-DELAY
+        if(Partition.PartitionStatus === QolsysAlarmMode.EXIT_DELAY){
           this.Refresh();
           return;
         }
 
-        if(Partition.SetAlarmMode(AlarmMode)){
-
-          // If Exit_Delay, need to run a new refresh to access ARM-AWAY-EXIT-DELAY vs ARM-STAY-EXIT-DELAY
-          if(Partition.PartitionStatus === QolsysAlarmMode.EXIT_DELAY){
-            this.Refresh();
-            return;
-          }
-
-          if(this.PanelReadyForOperation && this.PanelReceivingNotifcation){
-            this.emit('PartitionAlarmModeChange', Partition);
-          }
-        }
-      }
-    }
-
-    private ProcessSummary(Payload:PayloadJSON){
-      for( const PartitionId in Payload.partition_list){
-        const part = Payload.partition_list[PartitionId];
-        const Id = Number(part.partition_id);
-        const Name = part.name;
-        const SecureArm = part.secure_arm;
-        const Status = part.status;
-
-        let Partition = this.Partitions[Id];
-
-        if(Partition === undefined){
-          Partition = new QolsysPartition(Id);
-          this.Partitions[Id] = Partition;
-        }
-
-        Partition.PartitionName = Name;
-        Partition.SecureArm = SecureArm;
-
-
-        if(Partition.SetAlarmModeFromString(Status) && this.PanelReadyForOperation || this.InitialRun){
+        if(this.PanelReadyForOperation && this.PanelReceivingNotifcation){
           this.emit('PartitionAlarmModeChange', Partition);
         }
+      }
+    }
+  }
 
-        for( const PayloadZone of part.zone_list){
-          let Zone = this.Zones[PayloadZone.zone_id];
-          if(Zone === undefined){
-            Zone = new QolsysZone(PayloadZone.zone_id);
-            this.Zones[PayloadZone.zone_id] = Zone;
-          }
+  private ProcessSummary(Payload:PayloadJSON){
+    for( const PartitionId in Payload.partition_list){
+      const part = Payload.partition_list[PartitionId];
+      const Id = Number(part.partition_id);
+      const Name = part.name;
+      const SecureArm = part.secure_arm;
+      const Status = part.status;
 
-          Zone.SetZoneType(PayloadZone.type);
-          Zone.ZoneName = PayloadZone.name;
-          Zone.PartitionId = Number(PayloadZone.partition_id);
+      let Partition = this.Partitions[Id];
 
-          if(Zone.SetZoneStatusFromString(PayloadZone.status) && this.PanelReadyForOperation || this.InitialRun){
-            this.emit('ZoneStatusChange', Zone);
-          }
+      if(Partition === undefined){
+        Partition = new QolsysPartition(Id);
+        this.Partitions[Id] = Partition;
+      }
+
+      Partition.PartitionName = Name;
+      Partition.SecureArm = SecureArm;
+
+
+      if(Partition.SetAlarmModeFromString(Status) && this.PanelReadyForOperation || this.InitialRun){
+        this.emit('PartitionAlarmModeChange', Partition);
+      }
+
+      for( const PayloadZone of part.zone_list){
+        let Zone = this.Zones[PayloadZone.zone_id];
+        if(Zone === undefined){
+          Zone = new QolsysZone(PayloadZone.zone_id);
+          this.Zones[PayloadZone.zone_id] = Zone;
+        }
+
+        Zone.SetZoneType(PayloadZone.type);
+        Zone.ZoneName = PayloadZone.name;
+        Zone.PartitionId = Number(PayloadZone.partition_id);
+
+        if(Zone.SetZoneStatusFromString(PayloadZone.status) && this.PanelReadyForOperation || this.InitialRun){
+          this.emit('ZoneStatusChange', Zone);
         }
       }
-
-      this.InitialRun = false;
-
-      if(!this.PanelReadyForOperation){
-        this.PanelReadyForOperation = true;
-        this.emit('PanelReadyForOperation', this.PanelReadyForOperation);
-      }
-
-
     }
+
+    this.InitialRun = false;
+
+    if(!this.PanelReadyForOperation){
+      this.PanelReadyForOperation = true;
+      this.emit('PanelReadyForOperation', this.PanelReadyForOperation);
+    }
+
+
+  }
 }

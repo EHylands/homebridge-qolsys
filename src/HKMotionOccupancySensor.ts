@@ -1,6 +1,6 @@
-import { HKSensor } from './HKSensor';
-import { QolsysZoneStatus} from './QolsysZone';
-import { HKSensorType, HBQolsysPanel } from './platform';
+import { HKSensor } from './HKSensor.js';
+import { QolsysZoneStatus } from './QolsysZone.js';
+import { HKSensorType, HBQolsysPanel } from './platform.js';
 
 export class HKMotionOccupancySensor extends HKSensor {
 
@@ -12,7 +12,7 @@ export class HKMotionOccupancySensor extends HKSensor {
     protected readonly platform: HBQolsysPanel,
     protected ZoneId: number,
     protected readonly Name:string,
-    protected readonly UUID,
+    protected readonly UUID:string,
     protected readonly MotionSensorActive:boolean,
     protected readonly OccupancySensorActive:boolean,
   ) {
@@ -28,6 +28,7 @@ export class HKMotionOccupancySensor extends HKSensor {
       .setCharacteristic(this.platform.Characteristic.SerialNumber, 'QolsysZone' + ZoneId);
 
     if(MotionSensorActive){
+      // eslint-disable-next-line @typescript-eslint/no-unused-expressions
       this.Accessory.getService(this.platform.Service.MotionSensor) || this.Accessory.addService(this.platform.Service.MotionSensor);
     } else{
       // Motion Sensor not configured, remove if present
@@ -38,6 +39,7 @@ export class HKMotionOccupancySensor extends HKSensor {
     }
 
     if(OccupancySensorActive){
+      // eslint-disable-next-line @typescript-eslint/no-unused-expressions
       this.Accessory.getService(this.platform.Service.OccupancySensor) || this.Accessory.addService(this.platform.Service.OccupancySensor);
 
     } else{

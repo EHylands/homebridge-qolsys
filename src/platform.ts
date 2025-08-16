@@ -1,16 +1,16 @@
 import { API, DynamicPlatformPlugin, Logger, PlatformAccessory, PlatformConfig, Service, Characteristic } from 'homebridge';
-import { PLATFORM_NAME, PLUGIN_NAME } from './settings';
-import { QolsysController, QolsysControllerError } from './QolsysController';
-import { QolsysZone, QolsysZoneStatus, QolsysZoneType} from './QolsysZone';
-import { QolsysAlarmMode} from './QolsysPartition';
-import { HKSecurityPanel } from './HKSecurityPanel';
-import { HKContactSensor } from './HKContactSensor';
-import { HKLeakSensor } from './HKLeakSensor';
-import { HKSmokeSensor } from './HKSmokeSensor';
-import { HKCOSensor } from './HKCOSensor';
-import { HKDoorbellSensor } from './HKDoorbellSensor';
-import { HKSensor } from './HKSensor';
-import { HKMotionOccupancySensor } from './HKMotionOccupancySensor';
+import { PLATFORM_NAME, PLUGIN_NAME } from './settings.js';
+import { QolsysController, QolsysControllerError } from './QolsysController.js';
+import { QolsysZone, QolsysZoneStatus, QolsysZoneType } from './QolsysZone.js';
+//import { QolsysAlarmMode } from './QolsysPartition';
+import { HKSecurityPanel } from './HKSecurityPanel.js';
+import { HKContactSensor } from './HKContactSensor.js';
+import { HKLeakSensor } from './HKLeakSensor.js';
+import { HKSmokeSensor } from './HKSmokeSensor.js';
+import { HKCOSensor } from './HKCOSensor.js';
+import { HKDoorbellSensor } from './HKDoorbellSensor.js';
+import { HKSensor } from './HKSensor.js';
+import { HKMotionOccupancySensor } from './HKMotionOccupancySensor.js';
 
 export enum HKSensorType {
   MotionSensor = 'MotionSensor',
@@ -24,8 +24,8 @@ export enum HKSensorType {
 }
 
 export class HBQolsysPanel implements DynamicPlatformPlugin {
-  public readonly Service: typeof Service = this.api.hap.Service;
-  public readonly Characteristic: typeof Characteristic = this.api.hap.Characteristic;
+  public readonly Service: typeof Service;
+  public readonly Characteristic: typeof Characteristic;
 
   public accessories: PlatformAccessory[] = [];
   public CreatedAccessories: PlatformAccessory[] = [];
@@ -53,6 +53,7 @@ export class HBQolsysPanel implements DynamicPlatformPlugin {
   private ShowBluetooth = false;
   private ShowGlassBreak = false;
   private ShowTakeover = false;
+  private ShowShock = true;
   private LogPartition = true;
   private LogZone = false;
   private LogDebug = false;
@@ -71,6 +72,9 @@ export class HBQolsysPanel implements DynamicPlatformPlugin {
     public readonly config: PlatformConfig,
     public readonly api: API,
   ) {
+
+    this.Service = api.hap.Service;
+    this.Characteristic = api.hap.Characteristic;
 
     if(!this.CheckConfig()){
       this.Controller = new QolsysController(this.PanelHost, this.PanelPort);
@@ -160,6 +164,10 @@ export class HBQolsysPanel implements DynamicPlatformPlugin {
 
     if(this.config.ShowFreeze !== undefined){
       this.ShowFreeze = this.config.ShowFreeze;
+    }
+
+    if(this.config.ShowShock !== undefined){
+      this.ShowShock = this.config.ShowShock;
     }
 
     if(this.config.LogPartition !== undefined){
@@ -282,7 +290,9 @@ export class HBQolsysPanel implements DynamicPlatformPlugin {
     });
 
     this.Controller.on('PartitionAlarmModeChange', (Partition)=>{
-      const msg = 'Partition'+ Partition.PartitionId + '(' + Partition.PartitionName +'): ' + QolsysAlarmMode[Partition.PartitionStatus];
+      // Fix
+      const msg = 'Partition'+ Partition.PartitionId + '(' + Partition.PartitionName +'): ' + Partition.PartitionStatus;
+            
       if(this.LogPartition){
         this.log.info(msg);
       } else{
@@ -319,182 +329,192 @@ export class HBQolsysPanel implements DynamicPlatformPlugin {
 
     switch(Zone.ZoneType){
 
-      case QolsysZoneType.Motion:{
+    case QolsysZoneType.Motion:{
 
-        if(this.ShowMotion){
+      if(this.ShowMotion){
 
-          if(this.MotionSensorMode === 'Motion'){
-            this.Zones[Zone.ZoneId] = new HKMotionOccupancySensor(this, Zone.ZoneId, Zone.ZoneName,
-              'QolsysZone' + Zone.ZoneType + Zone.ZoneId, true, false);
-          }
-
-          if(this.MotionSensorMode === 'Occupancy'){
-            this.Zones[Zone.ZoneId] = new HKMotionOccupancySensor(this, Zone.ZoneId, Zone.ZoneName,
-              'QolsysZone' + Zone.ZoneType + Zone.ZoneId, false, true);
-          }
-
-          if(this.MotionSensorMode === 'MotionOccupancy'){
-            this.Zones[Zone.ZoneId] = new HKMotionOccupancySensor(this, Zone.ZoneId, Zone.ZoneName,
-              'QolsysZone' + Zone.ZoneType + Zone.ZoneId, true, true);
-          }
-
-          return true;
-
-        } else{
-          this.log.info('Zone' + Zone.ZoneId + ': Skipped in config file - ' + QolsysZoneType[Zone.ZoneType]);
-          return false;
+        if(this.MotionSensorMode === 'Motion'){
+          this.Zones[Zone.ZoneId] = new HKMotionOccupancySensor(this, Zone.ZoneId, Zone.ZoneName,
+            'QolsysZone' + Zone.ZoneType + Zone.ZoneId, true, false);
         }
-      }
 
-      case QolsysZoneType.PanelMotion:{
-        if(this.ShowMotion){
-
-          if(this.MotionSensorMode === 'Motion'){
-            this.Zones[Zone.ZoneId] = new HKMotionOccupancySensor(this, Zone.ZoneId, Zone.ZoneName,
-              'QolsysZone' + Zone.ZoneType + Zone.ZoneId, true, false);
-          }
-
-          if(this.MotionSensorMode === 'Occupancy'){
-            this.Zones[Zone.ZoneId] = new HKMotionOccupancySensor(this, Zone.ZoneId, Zone.ZoneName,
-              'QolsysZone' + Zone.ZoneType + Zone.ZoneId, false, true);
-          }
-
-          if(this.MotionSensorMode === 'MotionOccupancy'){
-            this.Zones[Zone.ZoneId] = new HKMotionOccupancySensor(this, Zone.ZoneId, Zone.ZoneName,
-              'QolsysZone' + Zone.ZoneType + Zone.ZoneId, true, true);
-          }
-
-          return true;
-
-        } else{
-          this.log.info('Zone' + Zone.ZoneId + ': Skipped in config file - ' + QolsysZoneType[Zone.ZoneType]);
-          return false;
+        if(this.MotionSensorMode === 'Occupancy'){
+          this.Zones[Zone.ZoneId] = new HKMotionOccupancySensor(this, Zone.ZoneId, Zone.ZoneName,
+            'QolsysZone' + Zone.ZoneType + Zone.ZoneId, false, true);
         }
-      }
 
-      case QolsysZoneType.DoorWindow:{
-        if(this.ShowContact){
-          this.Zones[Zone.ZoneId] = new HKContactSensor(this, Zone.ZoneId, Zone.ZoneName, 'QolsysZone' + Zone.ZoneType + Zone.ZoneId);
-          return true;
-        } else{
-          this.log.info('Zone' + Zone.ZoneId + ': Skipped in config file - ' + QolsysZoneType[Zone.ZoneType]);
-          return false;
+        if(this.MotionSensorMode === 'MotionOccupancy'){
+          this.Zones[Zone.ZoneId] = new HKMotionOccupancySensor(this, Zone.ZoneId, Zone.ZoneName,
+            'QolsysZone' + Zone.ZoneType + Zone.ZoneId, true, true);
         }
-      }
 
-      case QolsysZoneType.Water :{
-        if(this.ShowLeak){
-          this.Zones[Zone.ZoneId] = new HKLeakSensor(this, Zone.ZoneId, Zone.ZoneName, 'QolsysZone' + Zone.ZoneType + Zone.ZoneId);
-          return true;
-        } else{
-          this.log.info('Zone' + Zone.ZoneId + ': Skipped in config file - ' + QolsysZoneType[Zone.ZoneType]);
-          return false;
+        return true;
+
+      } else{
+        this.log.info('Zone' + Zone.ZoneId + ': Skipped in config file - ' + QolsysZoneType[Zone.ZoneType]);
+        return false;
+      }
+    }
+
+    case QolsysZoneType.PanelMotion:{
+      if(this.ShowMotion){
+
+        if(this.MotionSensorMode === 'Motion'){
+          this.Zones[Zone.ZoneId] = new HKMotionOccupancySensor(this, Zone.ZoneId, Zone.ZoneName,
+            'QolsysZone' + Zone.ZoneType + Zone.ZoneId, true, false);
         }
-      }
 
-      case QolsysZoneType.SmokeDetector :{
-        if(this.ShowSmoke){
-          this.Zones[Zone.ZoneId] = new HKSmokeSensor(this, Zone.ZoneId, Zone.ZoneName, 'QolsysZone' + Zone.ZoneType + Zone.ZoneId);
-          return true;
-        } else{
-          this.log.info('Zone' + Zone.ZoneId + ': Skipped in config file - ' + QolsysZoneType[Zone.ZoneType]);
-          return false;
+        if(this.MotionSensorMode === 'Occupancy'){
+          this.Zones[Zone.ZoneId] = new HKMotionOccupancySensor(this, Zone.ZoneId, Zone.ZoneName,
+            'QolsysZone' + Zone.ZoneType + Zone.ZoneId, false, true);
         }
-      }
 
-      case QolsysZoneType.Heat :{
-        if(this.ShowHeat){
-          this.Zones[Zone.ZoneId] = new HKSmokeSensor(this, Zone.ZoneId, Zone.ZoneName, 'QolsysZone' + Zone.ZoneType + Zone.ZoneId);
-          return true;
-        } else{
-          this.log.info('Zone' + Zone.ZoneId + ': Skipped in config file - ' + QolsysZoneType[Zone.ZoneType]);
-          return false;
+        if(this.MotionSensorMode === 'MotionOccupancy'){
+          this.Zones[Zone.ZoneId] = new HKMotionOccupancySensor(this, Zone.ZoneId, Zone.ZoneName,
+            'QolsysZone' + Zone.ZoneType + Zone.ZoneId, true, true);
         }
-      }
 
-      case QolsysZoneType.CODetector :{
-        if(this.ShowCO){
-          this.Zones[Zone.ZoneId] = new HKCOSensor(this, Zone.ZoneId, Zone.ZoneName, 'QolsysZone' + Zone.ZoneType + Zone.ZoneId);
-          return true;
-        } else{
-          this.log.info('Zone' + Zone.ZoneId + ': Skipped in config file - ' + QolsysZoneType[Zone.ZoneType]);
-          return false;
-        }
-      }
+        return true;
 
-      case QolsysZoneType.Bluetooth :{
-        if(this.ShowBluetooth){
-          this.Zones[Zone.ZoneId] = new HKContactSensor(this, Zone.ZoneId, Zone.ZoneName, 'QolsysZone' + Zone.ZoneType + Zone.ZoneId);
-          return true;
-        } else{
-          this.log.info('Zone' + Zone.ZoneId + ': No HomeKit plugin available - ' + QolsysZoneType[Zone.ZoneType]);
-          return false;
-        }
+      } else{
+        this.log.info('Zone' + Zone.ZoneId + ': Skipped in config file - ' + QolsysZoneType[Zone.ZoneType]);
+        return false;
       }
+    }
 
-      case QolsysZoneType.GlassBreak :{
-        if(this.ShowGlassBreak){
-          this.Zones[Zone.ZoneId] = new HKContactSensor(this, Zone.ZoneId, Zone.ZoneName, 'QolsysZone' + Zone.ZoneType + Zone.ZoneId);
-          return true;
-        } else{
-          this.log.info('Zone' + Zone.ZoneId + ': Skipped in config file - ' + QolsysZoneType[Zone.ZoneType]);
-          return false;
-        }
+    case QolsysZoneType.DoorWindow:{
+      if(this.ShowContact){
+        this.Zones[Zone.ZoneId] = new HKContactSensor(this, Zone.ZoneId, Zone.ZoneName, 'QolsysZone' + Zone.ZoneType + Zone.ZoneId);
+        return true;
+      } else{
+        this.log.info('Zone' + Zone.ZoneId + ': Skipped in config file - ' + QolsysZoneType[Zone.ZoneType]);
+        return false;
       }
+    }
 
-      case QolsysZoneType.PanelGlassBreak :{
-        if(this.ShowGlassBreak){
-          this.Zones[Zone.ZoneId] = new HKContactSensor(this, Zone.ZoneId, Zone.ZoneName, 'QolsysZone' + Zone.ZoneType + Zone.ZoneId);
-          return true;
-        } else{
-          this.log.info('Zone' + Zone.ZoneId + ': Skipped in config file - ' + QolsysZoneType[Zone.ZoneType]);
-          return false;
-        }
+    case QolsysZoneType.Water :{
+      if(this.ShowLeak){
+        this.Zones[Zone.ZoneId] = new HKLeakSensor(this, Zone.ZoneId, Zone.ZoneName, 'QolsysZone' + Zone.ZoneType + Zone.ZoneId);
+        return true;
+      } else{
+        this.log.info('Zone' + Zone.ZoneId + ': Skipped in config file - ' + QolsysZoneType[Zone.ZoneType]);
+        return false;
       }
+    }
 
-      case QolsysZoneType.TakeoverModule :{
-        if(this.ShowTakeover){
-          this.Zones[Zone.ZoneId] = new HKContactSensor(this, Zone.ZoneId, Zone.ZoneName, 'QolsysZone' + Zone.ZoneType + Zone.ZoneId);
-          return true;
-        } else{
-          this.log.info('Zone' + Zone.ZoneId + ': No HomeKit plugin available - ' + QolsysZoneType[Zone.ZoneType]);
-          return false;
-        }
+    case QolsysZoneType.SmokeDetector :{
+      if(this.ShowSmoke){
+        this.Zones[Zone.ZoneId] = new HKSmokeSensor(this, Zone.ZoneId, Zone.ZoneName, 'QolsysZone' + Zone.ZoneType + Zone.ZoneId);
+        return true;
+      } else{
+        this.log.info('Zone' + Zone.ZoneId + ': Skipped in config file - ' + QolsysZoneType[Zone.ZoneType]);
+        return false;
       }
+    }
 
-      case QolsysZoneType.Tilt :{
-        if(this.ShowTilt){
-          this.Zones[Zone.ZoneId] = new HKContactSensor(this, Zone.ZoneId, Zone.ZoneName, 'QolsysZone' + Zone.ZoneType + Zone.ZoneId);
-          return true;
-        } else{
-          this.log.info('Zone' + Zone.ZoneId + ': Skipped in config file - ' + QolsysZoneType[Zone.ZoneType]);
-          return false;
-        }
+    case QolsysZoneType.Heat :{
+      if(this.ShowHeat){
+        this.Zones[Zone.ZoneId] = new HKSmokeSensor(this, Zone.ZoneId, Zone.ZoneName, 'QolsysZone' + Zone.ZoneType + Zone.ZoneId);
+        return true;
+      } else{
+        this.log.info('Zone' + Zone.ZoneId + ': Skipped in config file - ' + QolsysZoneType[Zone.ZoneType]);
+        return false;
       }
+    }
 
-      case QolsysZoneType.Doorbell:{
-        if(this.ShowDoorbell){
-          this.Zones[Zone.ZoneId] = new HKDoorbellSensor(this, Zone.ZoneId, Zone.ZoneName, 'QolsysZone' + Zone.ZoneType + Zone.ZoneId);
-          return true;
-        } else{
-          this.log.info('Zone' + Zone.ZoneId + ': Skipped in config file - ' + QolsysZoneType[Zone.ZoneType]);
-          return false;
-        }
+    case QolsysZoneType.CODetector :{
+      if(this.ShowCO){
+        this.Zones[Zone.ZoneId] = new HKCOSensor(this, Zone.ZoneId, Zone.ZoneName, 'QolsysZone' + Zone.ZoneType + Zone.ZoneId);
+        return true;
+      } else{
+        this.log.info('Zone' + Zone.ZoneId + ': Skipped in config file - ' + QolsysZoneType[Zone.ZoneType]);
+        return false;
       }
+    }
 
-      case QolsysZoneType.Freeze :{
-        if(this.ShowFreeze){
-          this.Zones[Zone.ZoneId] = new HKContactSensor(this, Zone.ZoneId, Zone.ZoneName, 'QolsysZone' + Zone.ZoneType + Zone.ZoneId);
-          return true;
-        } else{
-          this.log.info('Zone' + Zone.ZoneId + ': Skipped in config file - ' + QolsysZoneType[Zone.ZoneType]);
-          return false;
-        }
-      }
-
-      default:
+    case QolsysZoneType.Bluetooth :{
+      if(this.ShowBluetooth){
+        this.Zones[Zone.ZoneId] = new HKContactSensor(this, Zone.ZoneId, Zone.ZoneName, 'QolsysZone' + Zone.ZoneType + Zone.ZoneId);
+        return true;
+      } else{
         this.log.info('Zone' + Zone.ZoneId + ': No HomeKit plugin available - ' + QolsysZoneType[Zone.ZoneType]);
         return false;
+      }
+    }
+
+    case QolsysZoneType.GlassBreak :{
+      if(this.ShowGlassBreak){
+        this.Zones[Zone.ZoneId] = new HKContactSensor(this, Zone.ZoneId, Zone.ZoneName, 'QolsysZone' + Zone.ZoneType + Zone.ZoneId);
+        return true;
+      } else{
+        this.log.info('Zone' + Zone.ZoneId + ': Skipped in config file - ' + QolsysZoneType[Zone.ZoneType]);
+        return false;
+      }
+    }
+
+    case QolsysZoneType.PanelGlassBreak :{
+      if(this.ShowGlassBreak){
+        this.Zones[Zone.ZoneId] = new HKContactSensor(this, Zone.ZoneId, Zone.ZoneName, 'QolsysZone' + Zone.ZoneType + Zone.ZoneId);
+        return true;
+      } else{
+        this.log.info('Zone' + Zone.ZoneId + ': Skipped in config file - ' + QolsysZoneType[Zone.ZoneType]);
+        return false;
+      }
+    }
+
+    case QolsysZoneType.TakeoverModule :{
+      if(this.ShowTakeover){
+        this.Zones[Zone.ZoneId] = new HKContactSensor(this, Zone.ZoneId, Zone.ZoneName, 'QolsysZone' + Zone.ZoneType + Zone.ZoneId);
+        return true;
+      } else{
+        this.log.info('Zone' + Zone.ZoneId + ': No HomeKit plugin available - ' + QolsysZoneType[Zone.ZoneType]);
+        return false;
+      }
+    }
+
+    case QolsysZoneType.Tilt :{
+      if(this.ShowTilt){
+        this.Zones[Zone.ZoneId] = new HKContactSensor(this, Zone.ZoneId, Zone.ZoneName, 'QolsysZone' + Zone.ZoneType + Zone.ZoneId);
+        return true;
+      } else{
+        this.log.info('Zone' + Zone.ZoneId + ': Skipped in config file - ' + QolsysZoneType[Zone.ZoneType]);
+        return false;
+      }
+    }
+
+    case QolsysZoneType.Doorbell:{
+      if(this.ShowDoorbell){
+        this.Zones[Zone.ZoneId] = new HKDoorbellSensor(this, Zone.ZoneId, Zone.ZoneName, 'QolsysZone' + Zone.ZoneType + Zone.ZoneId);
+        return true;
+      } else{
+        this.log.info('Zone' + Zone.ZoneId + ': Skipped in config file - ' + QolsysZoneType[Zone.ZoneType]);
+        return false;
+      }
+    }
+
+    case QolsysZoneType.Freeze :{
+      if(this.ShowFreeze){
+        this.Zones[Zone.ZoneId] = new HKContactSensor(this, Zone.ZoneId, Zone.ZoneName, 'QolsysZone' + Zone.ZoneType + Zone.ZoneId);
+        return true;
+      } else{
+        this.log.info('Zone' + Zone.ZoneId + ': Skipped in config file - ' + QolsysZoneType[Zone.ZoneType]);
+        return false;
+      }
+    }
+
+    case QolsysZoneType.Shock :{
+      if(this.ShowShock){
+        this.Zones[Zone.ZoneId] = new HKContactSensor(this, Zone.ZoneId, Zone.ZoneName, 'QolsysZone' + Zone.ZoneType + Zone.ZoneId);
+        return true;
+      } else{
+        this.log.info('Zone' + Zone.ZoneId + ': Skipped in config file - ' + QolsysZoneType[Zone.ZoneType]);
+        return false;
+      }
+    }
+
+    default:
+      this.log.info('Zone' + Zone.ZoneId + ': No HomeKit plugin available - ' + QolsysZoneType[Zone.ZoneType]);
+      return false;
     }
   }
 
