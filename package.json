@@ -30,7 +30,7 @@
     "Home automation"
   ],
   "dependencies": {
-    "homebridge-config-ui-x": "^4.55.1",
+    "homebridge-config-ui-x": "^5.18.0",
     "tiny-typed-emitter": "^2.1.0"
   },
   "devDependencies": {
